@@ -5,6 +5,7 @@ Things to improve:
     + Different colors should be more unique, either harder too kill or different attacks
   + Particles should chance color in a meaningful way
     + Fading colors, or color turning
+  + Need a new wav file for the theme song, got messed up somehow
 
 Things to Add:
   + Main Menu

@@ -195,7 +195,6 @@ export default class UFO extends Ship {
     ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
     ctx.closePath();
     ctx.stroke();
-    ctx.beginPath();
     this.lineSegments.forEach(segment => {
       ctx.beginPath();
       ctx.moveTo(segment.xI, segment.yI);

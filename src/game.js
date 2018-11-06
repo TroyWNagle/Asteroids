@@ -4,6 +4,7 @@ import Asteroid from './asteroid.js';
 import Projectile from './projectile.js';
 import Particle from './particles.js';
 import UFO from './ufo.js';
+import PowerUp from './powerup.js';
 
 /** @function Math.randomBetween()
   * Math prototype function built to easily create ranom floats
@@ -59,16 +60,18 @@ export default class Game {
     this.highscore = 0;
     this.lives = 3;
     this.level = 1;
-    //controls the telepor function
+    //controls the teleport function
     this.teleports = 10;
     this.coolingDown = 50;
+    this.powerups = [];
+    this.powerupTimer = Math.randomInt(1000, 2000);
     //Over Loop Controllers
     this.gameOver = false;;
     this.paused = false;
 
     //Found this Wav file @ https://freesound.org/people/joshuaempyre/sounds/251461/
     this.theme = new Audio('./theme.wav');
-    this.theme.volume = 0.3;
+    this.theme.volume = 0.0;
     this.theme.loop = true;
     this.theme.play();
     //All Wav files below were created with BFXR
@@ -78,7 +81,7 @@ export default class Game {
     this.explosion = new Audio('./Explosion.wav');
     this.explosion.volume = 0.70;
     this.shipExplosion = new Audio('./shipExplosion.wav');
-    this.laser = new Audio('./LaserShoot.wav');
+    //this.laser = new Audio('./laserShoot.wav');
     this.ufoLaser = new Audio('./ufoShot.wav');
     this.teleportSound = new Audio('./teleport.wav');
 
@@ -313,6 +316,12 @@ export default class Game {
         this.ufos.push(new UFO(x, y));
       }
     }
+  }
+
+  createPowerUp() {
+    let x = Math.randomInt(this.screenSide * 0.10, this.screenSide * 0.90)
+    let y = Math.randomInt(this.screenSide * 0.10, this.screenSide * 0.90)
+    this.powerups.push(new PowerUp(x, y, 'homing'));
   }
 
   /** @function rotate()
@@ -616,6 +625,12 @@ export default class Game {
       }
     }
 
+    this.powerupTimer--;
+    if(this.powerupTimer <= 0) {
+      this.createPowerUp();
+      this.powerupTimer = Math.randomInt(1000, 2000)
+    }
+
     //Control respawning
     if(this.respawning) {
       this.respawnTimer--;
@@ -748,7 +763,7 @@ export default class Game {
     //Space
     if(this.keyMap[32] && this.rateOfFire === 40 && !this.respawning) {
       this.createProjectile();
-      this.laser.play();
+      this.ufoLaser.play();
       this.reloading = true;
     }
     //F
@@ -848,6 +863,9 @@ export default class Game {
     //draw projectiles
     this.projectiles.forEach(projectile => {
       projectile.render(this.backBufferContext);
+    });
+    this.powerups.forEach(powerup => {
+      powerup.render(this.backBufferContext);
     });
     //draw particles
     this.particles.forEach(particle => {
