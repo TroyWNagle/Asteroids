@@ -1,0 +1,37 @@
+Things to improve:
+  + Increased performance by making particles an object pool?
+  + U.I. is as a bare minimum right now
+  + A.I. is very simplistic
+    + Different colors should be more unique, either harder too kill or different attacks
+  + Particles should chance color in a meaningful way
+    + Fading colors, or color turning
+
+Things to Add:
+  + Main Menu
+    + Start, Options, Controls
+    + Book of Knowledge?
+      + Enemy types, scoring, powerups, etc...
+  + Enemy types
+    + UFO that dodges?
+    + UFO that has a recharging shield?
+    + UFO that catches small asteroids and uses them as shields????
+      + Could be very problematic, but really cool..
+      + What happens when a carried asteroid bumps into a non carried one?
+    + UFO that tries to steal powerups?
+  + Power ups
+    + Homing shots
+      + Implementation ideas: Project a cone out from the projectile that finds a target and adjusts direction accordingly
+        + Ability to change its direction must be limited
+        + Ignores Asteroids
+        + If it loses a target it searches for another one
+    + Rapid Fire
+      + Simple to implement
+        + Probably need to reduce the particle trail on the projectile so it doesn't bog down the game
+    + Shield
+      + Ship can take a hit before being destroyed
+    + Large Projectiles
+    + Fast Projectiles
+
+Things to remove:
+  + Master Reset button
+    + Should just have a pause menu or something, similar to main menu

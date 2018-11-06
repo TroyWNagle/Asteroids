@@ -18,10 +18,9 @@ export default class Particle {
     this.y = y;
     this.life = life;
     this.color = color;
-    this.speed = speed;
+    this.speed = Math.randomInt(0, speed);
     this.speedX = Math.cos(direction) * this.speed;
     this.speedY = -Math.sin(direction) * this.speed;
-    this.decayDistance = Math.randomBetween(10, 50);
   }
   /** @function update()
     * function to updates the particle if it hasn't hit the decay distance
@@ -30,9 +29,6 @@ export default class Particle {
     var dx = this.startX - this.x;
     var dy = this.startY - this.y;
     this.life--;
-    if(this.decayDistance * this.decayDistance <= dx * dx + dy * dy) {
-      return;
-    }
     this.x += this.speedX;
     this.y += this.speedY;
   }
@@ -40,7 +36,7 @@ export default class Particle {
     * standard render function
     */
   render(ctx) {
-    ctx.save()
+    ctx.save();
     ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.arc(this.x, this.y, 1, 0, Math.PI * 2);
