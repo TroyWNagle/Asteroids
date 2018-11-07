@@ -9,6 +9,9 @@ export default class Projectile {
     this.y = y;
     this.radius = 3.5;
     this.color = color;
+    if(direction < 0) {
+      direction += Math.PI * 2
+    }
     this.velocity = {mag: 5.0, dir: direction};
     this.speed = {x: 0.0, y: 0.0};
     this.initSpeed();
@@ -54,7 +57,7 @@ export default class Projectile {
   /** @function update()
     * typical update function, also updates its particle trail
     */
-  update() {
+  update(targets) {
     this.createParticles(Math.randomInt(3, 6));
     this.x += this.speed.x;
     this.y += this.speed.y;

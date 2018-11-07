@@ -2,6 +2,7 @@
 import Ship from './ship.js';
 import Asteroid from './asteroid.js';
 import Projectile from './projectile.js';
+import Homing from './homing.js';
 import Particle from './particles.js';
 import UFO from './ufo.js';
 import PowerUp from './powerup.js';
@@ -36,13 +37,13 @@ export default class Game {
   constructor() {
     this.screenSide = 1000;
     //Num Objects
-    this.numAsteroids = 10;
+    this.numAsteroids = 5;
     //Objects/Arrays
     this.ship = new Ship();
     this.ufos = [];
     this.MAXUFO = 5;
     //Variables to control ufo spawn
-    this.ufoTimer = Math.randomInt(500, 1000);
+    this.ufoTimer = Math.randomInt(100, 200);
     //var To control ufo firing
     //this.ufoRateOfFire = Math.randomInt(150, 350);
     //Vars to help with respawning the player
@@ -58,22 +59,22 @@ export default class Game {
     //HUD Variables
     this.score = 0;
     this.highscore = 0;
-    this.lives = 3;
+    this.lives = 100;
     this.level = 1;
     //controls the teleport function
     this.teleports = 10;
     this.coolingDown = 50;
     this.powerups = [];
-    this.powerupTimer = Math.randomInt(1000, 2000);
+    this.powerupTimer = Math.randomInt(100, 200);
     //Over Loop Controllers
     this.gameOver = false;;
     this.paused = false;
 
     //Found this Wav file @ https://freesound.org/people/joshuaempyre/sounds/251461/
-    this.theme = new Audio('./theme.wav');
-    this.theme.volume = 0.0;
+    /*this.theme = new Audio('./theme.wav');
+    this.theme.volume = 0.01;
     this.theme.loop = true;
-    this.theme.play();
+    this.theme.play();*/
     //All Wav files below were created with BFXR
     this.over = new Audio('./gameOver.wav');
     this.collisionSound = new Audio('collision.wav');
@@ -192,7 +193,8 @@ export default class Game {
     //Get the coordinates of the tip of the ship, The 1.2 is so you can't run into your own shot immediately
     var x = this.ship.x + Math.sin(this.ship.velocity.dir)* this.ship.radius * 1.2;
     var y = this.ship.y - Math.cos(this.ship.velocity.dir)* this.ship.radius * 1.2;
-    this.projectiles.push(new Projectile(x, y, this.ship.velocity.dir, this.ship.color));
+    //this.projectiles.push(new Projectile(x, y, this.ship.velocity.dir, this.ship.color));
+    this.projectiles.push(new Homing(x, y, this.ship.velocity.dir, this.ship.color));
   }
 
   /** @function
@@ -206,7 +208,7 @@ export default class Game {
     //Draw a line to the target
     var distance = Math.sqrt(dx * dx + dy * dy);
     //Get the direction to the target
-    var direction = Math.acos((dy)/ distance);
+    var direction = Math.acos(dy / distance);
     //Mirror the angle for the left hand side
     if(dx > 0) {
       direction *= -1;
@@ -490,6 +492,12 @@ export default class Game {
     }
   }
 
+  takePowerUp(powerup, ship) {
+    ship.powerups.push(powerup)
+    this.powerups.splice(powerup, 1)
+    //Need sound & animation
+  }
+
   /** @function teleport()
     * function to handle the teleport extra credit
     * Checks if the area is clear before chosing a spot
@@ -617,7 +625,7 @@ export default class Game {
     }
 
     //Determine UFO spawning
-    if(this.ufoTimer > 0 && this.ufos.length <= this.MAXUFO) {
+    if(this.ufoTimer > 0 && this.ufos.length < this.MAXUFO) {
       this.ufoTimer--;
       if(this.ufoTimer <= 0) {
         this.addUFO();
@@ -671,6 +679,13 @@ export default class Game {
           this.explode(this.ship.x, this.ship.y, this.ship.color);
           this.shipExplosion.play();
           this.respawn();
+        }
+      });
+      //Check if a ship picks up a powerup
+      this.powerups.forEach(powerup => {
+        if(this.circleCollision(this.ship.x, this.ship.y, this.ship.radius, powerup.pos.x, powerup.pos.y, powerup.radius)) {
+          this.explode(this.ship.x, this.ship.y, this.ship.color);
+          this.takePowerUp(powerup, this.ship)
         }
       });
     }
@@ -812,7 +827,7 @@ export default class Game {
 
     //Update projectiles, if there are any
     for(let i = 0; i < this.projectiles.length; i++) {
-      this.projectiles[i].update();
+      this.projectiles[i].update(this.ufos);
       if(this.projectiles[i].edgeDetection()) {
         this.projectiles.splice(i, 1);
       }

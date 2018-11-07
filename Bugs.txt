@@ -1,0 +1,18 @@
+Sound:
++ Theme music won't work any more
+  + Promise error when trying to play
+  + Something wrong with the file or how it is referenced
++ Sound for player to shoot (laser audio object), still won't work
+  + Temporary fix, using the UFO shoot sound
+
+
+Power Ups:
++ If multiple power ups are present, when you pick one
+  up, all of them disappear
+  + Something Probably wrong with the takePowerUp() function
+  + Only happens some times...?
+
+Mechanics:
++ Homing shot -> Struggles when multiple UFOs in scanning arc
+  - Fixed as far as I can tell, And got rid of the scanning arc
+  - Only searches for the closest UFO now

@@ -1,0 +1,19 @@
+Homing.js:
+  + Ignores asteroids, only cycles through UFOs at the moment
+    + Might need to change some things to allow UFOs to shoot homing shots
+  + Added Homing class that is a subclass of projectile
+  + Can consistently find targets and track them
+  + Can change targets and is constantly searching for closer targets
+  - Has trouble letting go of targets
+
+Game.js:
+  + Minor changes, mainly for debugging the homing class
+  + Right now all projectiles from the player are homing
+  + Shortened spawn times of UFOs and powerups for debugging
+  + Number of starting asteroids reduced to 5 from 10
+
+Projectile.js:
+  + In constructor, the direction the projectile travels in is forced to be positive
+
+11/6/2018
+--------------------------------------------------------------------------

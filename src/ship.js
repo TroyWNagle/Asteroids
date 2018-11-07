@@ -19,6 +19,7 @@ export default class Ship {
     //particles for thruster trail
     this.particles = [];
     this.color = 'green';
+    this.powerups = []
   }
 
   /** @function updateSpeed()
@@ -28,7 +29,7 @@ export default class Ship {
     //Alter the direction
     this.speed.y += -Math.cos(this.velocity.dir) * this.velocity.mag;
     this.speed.x += Math.sin(this.velocity.dir) * this.velocity.mag;
-    //Enforce the mass x speed
+    //Enforce the max x speed
     if(Math.abs(this.speed.x) >= 3.0) {
       if(this.speed.x < 0) {
         this.speed.x = -3.0;
