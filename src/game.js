@@ -162,7 +162,12 @@ export default class Game {
     var x = this.ship.x + Math.sin(this.ship.velocity.dir)* this.ship.radius * 1.2;
     var y = this.ship.y - Math.cos(this.ship.velocity.dir)* this.ship.radius * 1.2;
     //this.projectiles.push(new Projectile(x, y, this.ship.velocity.dir, this.ship.color));
-    this.projectiles.push(new Homing(x, y, this.ship.velocity.dir, this.ship.color));
+    if(this.ship.powerups.homing) {
+      this.projectiles.push(new Homing(x, y, this.ship.velocity.dir, this.ship.color));
+    }
+    else {
+      this.projectiles.push(new Projectile(x, y, this.ship.velocity.dir, this.ship.color));
+    }
   }
 
   /** @function
@@ -631,7 +636,8 @@ export default class Game {
       for(let i = 0; i < this.powerups.length; i++) {
         if(Math.circleCollisionDetection(this.ship.x, this.ship.y, this.ship.radius, this.powerups[i].pos.x, this.powerups[i].pos.y, this.powerups[i].radius)) {
           this.explode(this.ship.x, this.ship.y, this.ship.color);
-          this.ship.powerups.push(this.powerups[i]);
+          this.ship.powerups.homing = true;
+          this.ship.powerupTimers.hTimer += this.powerups[i].timer;
           this.powerups.splice(i, 1);
           break;
         }

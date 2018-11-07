@@ -5,6 +5,8 @@ Things to improve:
     + Different colors should be more unique, either harder too kill or different attacks
   + Particles should chance color in a meaningful way
     + Fading colors, or color turning
+    - Tried it, didn't really like it that much.
+    - The way canvas handles rgb values isn't great
   + Need a new wav file for the theme song, got messed up somehow
 
 Things to Add:

@@ -27,9 +27,17 @@ Game.js:
   - Took away game's direct control of the audio objects
   - Took out, takePowerUp function. It wasn't really helping at all.
     - I just take the power up right after detecting the collision
+  + Changed how it pushes power up data to the player
 
 Asteroids.js:
   - Took out its collision detection method
 
 AudioController.js:
   + Added an class that does nothing but control the audio objects
+
+Ship.js:
+  + Changed how power ups and timers for them are stored
+    + Using {} to store power ups and timers by key
+      + Not sure if this is the best way, updating multiple powers might be a pain
+  + Homing power up is working properly. Shots normally when it doesn't have a Homing
+    power up.

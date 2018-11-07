@@ -19,7 +19,8 @@ export default class Ship {
     //particles for thruster trail
     this.particles = [];
     this.color = 'green';
-    this.powerups = []
+    this.powerups = {homing: false};
+    this.powerupTimers = {hTimer: 0}
   }
 
   /** @function updateSpeed()
@@ -91,7 +92,12 @@ export default class Ship {
     this.edgeDetection();
     this.x += this.speed.x;
     this.y += this.speed.y;
-
+    if(this.powerups.homing) {
+      this.powerupTimers.hTimer--;
+      if(this.powerupTimers.hTimer <= 0) {
+        this.powerups.homing = false;
+      }
+    }
     //Particle effect for the thruster
     for(var j = 0; j < this.particles.length; j++) {
       this.particles[j].update();

@@ -21,7 +21,7 @@ export default class Homing extends Projectile {
         shortest = distance
       }
     }
-    if(shortest == 10000) {
+    if(shortest === 10000) {
       this.target = null
     }
   }
