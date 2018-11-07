@@ -6,26 +6,8 @@ import Homing from './homing.js';
 import Particle from './particles.js';
 import UFO from './ufo.js';
 import PowerUp from './powerup.js';
-
-/** @function Math.randomBetween()
-  * Math prototype function built to easily create ranom floats
-  * @param float min - the lowest number you want
-  * @param float max - the highest number you want (I beleive it is non-inclusive)
-  * @returns random float between the parameters
-  */
-Math.randomBetween = function (min, max) {
-  return Math.random() * (max - min) + min;
-};
-
-/** @function Math.randomBetween()
-  * Math prototype function built to easily create ranom integers
-  * @param float min - the lowest number you want
-  * @param float max - the highest number you want (I beleive it is non-inclusive)
-  * @returns random integer between the parameters
-  */
-Math.randomInt = function (min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-};
+import Prototypes from './math.js';
+import AudioController from './audiocontroller.js';
 
 /** @class Game
   * Game object that controls the interactions between all other Objects
@@ -59,7 +41,7 @@ export default class Game {
     //HUD Variables
     this.score = 0;
     this.highscore = 0;
-    this.lives = 100;
+    this.lives = 3;
     this.level = 1;
     //controls the teleport function
     this.teleports = 10;
@@ -70,21 +52,7 @@ export default class Game {
     this.gameOver = false;;
     this.paused = false;
 
-    //Found this Wav file @ https://freesound.org/people/joshuaempyre/sounds/251461/
-    /*this.theme = new Audio('./theme.wav');
-    this.theme.volume = 0.01;
-    this.theme.loop = true;
-    this.theme.play();*/
-    //All Wav files below were created with BFXR
-    this.over = new Audio('./gameOver.wav');
-    this.collisionSound = new Audio('collision.wav');
-    this.collisionSound.volume = 0.50;
-    this.explosion = new Audio('./Explosion.wav');
-    this.explosion.volume = 0.70;
-    this.shipExplosion = new Audio('./shipExplosion.wav');
-    //this.laser = new Audio('./laserShoot.wav');
-    this.ufoLaser = new Audio('./ufoShot.wav');
-    this.teleportSound = new Audio('./teleport.wav');
+    this.audioController = new AudioController();
 
     //Input Map
     this.keyMap = {32: false, 37: false, 38: false, 39: false, 65: false, 68: false, 70: false, 87: false, 88: false};
@@ -152,8 +120,8 @@ export default class Game {
     //Over Loop Controllers
     this.gameOver = false;
     this.paused = false;
-    this.theme.loop = true;
-    this.theme.play();
+    /*this.theme.loop = true;
+    this.theme.play();*/
   }
 
   /** @function handleKeyDown()
@@ -217,7 +185,7 @@ export default class Game {
     var x = ufo.x + Math.sin(direction)* ufo.radius * 1.2;
     var y = ufo.y - Math.cos(direction)* ufo.radius * 1.2;
     this.projectiles.push(new Projectile(x, y, direction, ufo.color));
-    this.ufoLaser.play();
+    this.audioController.trigger('shoot');
   }
 
   /** @function
@@ -270,7 +238,7 @@ export default class Game {
       }
       //Checks if the position is occupied by another asteroid
       this.asteroids.forEach(asteroid => {
-        if(asteroid.collisionDetection(x, y, radius)) {
+        if(Math.circleCollisionDetection(asteroid.x, asteroid.y, asteroid.radius, x, y, radius)) {
           collision = true;
         }
       });
@@ -310,7 +278,7 @@ export default class Game {
         y = Math.randomBetween(-2 * radius, 1000 + 2 * radius);
       }
       this.asteroids.forEach(asteroid => {
-        if(this.circleCollision(x, y, radius + 40, asteroid.x, asteroid.y, asteroid.radius)) {
+        if(Math.circleCollisionDetection(x, y, radius + 40, asteroid.x, asteroid.y, asteroid.radius)) {
           collision = true;
         }
       });
@@ -383,22 +351,6 @@ export default class Game {
     }
   }
 
-  /** @function circleCollision()
-    * function to determine if two circles are overlapping
-    * @param floats x1, y1, r1 - position and radius of the first circle
-    * @param floats x2, y2, r2 - position and radius of the second circle
-    */
-  circleCollision(x1, y1, r1, x2, y2, r2) {
-    var dx = x1 - x2;
-    var dy = y1 - y2;
-    var distance = dx * dx + dy * dy;
-    //check if ufo
-    if(distance < (r1 + r2) * (r1 + r2)) {
-      return true;
-    }
-    return false;
-  }
-
   projectileDodger(ufo, projectile) {
     var dx = ufo.x - projectile.x;
     var dy = ufo.y - projectile.y;
@@ -425,7 +377,7 @@ export default class Game {
     var y = asteroid.y;
     //Get rid of the asteroid
     this.asteroids.splice(aID, 1);
-    this.explosion.play();
+    this.audioController.trigger('explosion');
     //Smaller asteroids are harder to hit, thus more score
     this.score += Math.floor(100 / mass);
     //If it isn't too small
@@ -492,12 +444,6 @@ export default class Game {
     }
   }
 
-  takePowerUp(powerup, ship) {
-    ship.powerups.push(powerup)
-    this.powerups.splice(powerup, 1)
-    //Need sound & animation
-  }
-
   /** @function teleport()
     * function to handle the teleport extra credit
     * Checks if the area is clear before chosing a spot
@@ -518,19 +464,19 @@ export default class Game {
       }
       //Checks if the ufo is nearby
       this.ufos.forEach(ufo => {
-        if(this.circleCollision(x, y, this.ship.radius, ufo.x, ufo.y, ufo.radius + 2 * buffer)) {
+        if(Math.circleCollisionDetection(x, y, this.ship.radius, ufo.x, ufo.y, ufo.radius + 2 * buffer)) {
           collision = true;
         }
-      })
+      });
       this.asteroids.forEach(asteroid => {
         //Check if new space is free of asteroids
-        if(this.circleCollision(x, y, this.ship.radius, asteroid.x, asteroid.y, asteroid.radius + buffer)) {
+        if(Math.circleCollisionDetection(x, y, this.ship.radius, asteroid.x, asteroid.y, asteroid.radius + buffer)) {
           collision = true;
         }
       });
       this.projectiles.forEach(projectile => {
         //Check if the new space if free of projectiles
-        if(this.circleCollision(projectile.x, projectile.y, projectile.radius, x, y, this.ship.radius + buffer)) {
+        if(Math.circleCollisionDetection(projectile.x, projectile.y, projectile.radius, x, y, this.ship.radius + buffer)) {
           collision = true;
         }
       });
@@ -538,10 +484,10 @@ export default class Game {
     //Particle explosion in the to & from spots
     this.explode(this.ship.x, this.ship.y, this.ship.color);
     this.explode(x, y, this.ship.color);
-    this.teleportSound.play();
+    this.audioController.trigger('teleport');
     this.ship.x = x;
     this.ship.y = y;
-    //Resets you ships momentum
+    //Resets you ships momentum, Reseting the momentum is definitely easier for the player
     this.ship.speed.x = 0.0;
     this.ship.speed.y = 0.0;
   }
@@ -557,9 +503,9 @@ export default class Game {
     }
     else {
       this.gameOver = true;
-      this.theme.loop = false;
-      this.theme.pause();
-      this.over.play();
+      /*this.theme.loop = false;
+      this.theme.pause();*/
+      this.audioController.trigger('game over');
     }
   }
 
@@ -572,7 +518,7 @@ export default class Game {
       this.lives++;
     }
     this.ufos.splice(ufoID, 1);
-    this.shipExplosion.play();
+    this.audioController.trigger('ship explosion');
   }
 
   checkHighScore() {
@@ -636,7 +582,7 @@ export default class Game {
     this.powerupTimer--;
     if(this.powerupTimer <= 0) {
       this.createPowerUp();
-      this.powerupTimer = Math.randomInt(1000, 2000)
+      this.powerupTimer = Math.randomInt(100, 200)
     }
 
     //Control respawning
@@ -652,17 +598,17 @@ export default class Game {
     //Checks for collisions between asteroids
     for(let i = 0; i < this.asteroids.length; i++) {
       for(let j = i + 1; j < this.asteroids.length; j++) {
-          if(this.asteroids[i].collisionDetection(this.asteroids[j].x, this.asteroids[j].y, this.asteroids[j].radius)) {
-            this.particleCollision(this.asteroids[i], this.asteroids[j]);
-            this.collisionSound.play();
-          }
+        if(Math.circleCollisionDetection(this.asteroids[i].x, this.asteroids[i].y, this.asteroids[i].radius, this.asteroids[j].x, this.asteroids[j].y, this.asteroids[j].radius)) {
+          this.particleCollision(this.asteroids[i], this.asteroids[j]);
+          this.audioController.trigger('collision');
+        }
       }
     }
 
     //Checks for collisions between projectiles and asteroids
     for(let i = 0; i < this.projectiles.length; i++) {
       for(let j = 0; j < this.asteroids.length; j++) {
-        if(this.circleCollision(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius, this.asteroids[j].x, this.asteroids[j].y, this.asteroids[j].radius)) {
+        if(Math.circleCollisionDetection(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius, this.asteroids[j].x, this.asteroids[j].y, this.asteroids[j].radius)) {
           this.explode(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].color);
           this.projectiles.splice(i, 1);
           this.explode(this.asteroids[j].x, this.asteroids[j].y, 'white');
@@ -675,19 +621,21 @@ export default class Game {
     if(!this.respawning) {
       //Check for ship crashing
       this.asteroids.forEach(asteroid => {
-        if(this.circleCollision(this.ship.x, this.ship.y, this.ship.radius, asteroid.x, asteroid.y, asteroid.radius)) {
+        if(Math.circleCollisionDetection(this.ship.x, this.ship.y, this.ship.radius, asteroid.x, asteroid.y, asteroid.radius)) {
           this.explode(this.ship.x, this.ship.y, this.ship.color);
-          this.shipExplosion.play();
+          this.audioController.trigger('ship explosion');
           this.respawn();
         }
       });
       //Check if a ship picks up a powerup
-      this.powerups.forEach(powerup => {
-        if(this.circleCollision(this.ship.x, this.ship.y, this.ship.radius, powerup.pos.x, powerup.pos.y, powerup.radius)) {
+      for(let i = 0; i < this.powerups.length; i++) {
+        if(Math.circleCollisionDetection(this.ship.x, this.ship.y, this.ship.radius, this.powerups[i].pos.x, this.powerups[i].pos.y, this.powerups[i].radius)) {
           this.explode(this.ship.x, this.ship.y, this.ship.color);
-          this.takePowerUp(powerup, this.ship)
+          this.ship.powerups.push(this.powerups[i]);
+          this.powerups.splice(i, 1);
+          break;
         }
-      });
+      }
     }
 
     for(let i = 0; i < this.ufos.length; i++) {
@@ -703,7 +651,7 @@ export default class Game {
     if(this.ufos.length > 1) {
       for(let i = 0; i < this.ufos.length; i++) {
         for(let j = i + 1; j < this.ufos.length; j++) {
-          if(this.circleCollision(this.ufos[i].x, this.ufos[i].y, this.ufos[i].critical, this.ufos[j].x, this.ufos[j].y, this.ufos[j].critical)) {
+          if(Math.circleCollisionDetection(this.ufos[i].x, this.ufos[i].y, this.ufos[i].critical, this.ufos[j].x, this.ufos[j].y, this.ufos[j].critical)) {
             var dx = this.ufos[i].x - this.ufos[j].x;
             var dy = this.ufos[i].y - this.ufos[j].y;
             if(this.ufos[i].color === 'purple') {
@@ -721,9 +669,9 @@ export default class Game {
 
     if(!this.respawning) {
       this.ufos.forEach(ufo => {
-        if(this.circleCollision(this.ship.x, this.ship.y, this.ship.radius, ufo.x, ufo.y, ufo.radius)) {
+        if(Math.circleCollisionDetection(this.ship.x, this.ship.y, this.ship.radius, ufo.x, ufo.y, ufo.radius)) {
           this.explode(this.ship.x, this.ship.y, this.ship.color);
-          this.shipExplosion.play();
+          this.audioController.trigger('ship explosion');
           this.respawn();
         }
       });
@@ -731,23 +679,23 @@ export default class Game {
 
     //projectile ship collision checks
     for(let i = 0; i < this.projectiles.length; i++) {
-      if(!this.respawning && this.circleCollision(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius,
+      if(!this.respawning && Math.circleCollisionDetection(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius,
         this.ship.x, this.ship.y, this.ship.radius)) {
         this.explode(this.ship.x, this.ship.y, this.ship.color);
         this.explode(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].color);
         this.projectiles.splice(i, 1);
-        this.shipExplosion.play();
+        this.audioController.trigger('ship explosion');
         this.respawn();
         break;
       }
       for(let j = 0; j < this.ufos.length; j ++) {
-        if (this.circleCollision(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius,
+        if (Math.circleCollisionDetection(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius,
           this.ufos[j].x, this.ufos[j].y, this.ufos[j].radius)) {
             this.explode(this.ufos[j].x, this.ufos[j].y, this.ufos[j].color);
             this.explode(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].color);
             this.projectiles.splice(i, 1);
             this.destoryUFO(j);
-            this.shipExplosion.play();
+            this.audioController.trigger('ship explosion');
             break;
         }
       }
@@ -778,7 +726,7 @@ export default class Game {
     //Space
     if(this.keyMap[32] && this.rateOfFire === 40 && !this.respawning) {
       this.createProjectile();
-      this.ufoLaser.play();
+      this.audioController.trigger('shoot');
       this.reloading = true;
     }
     //F

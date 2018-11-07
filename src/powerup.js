@@ -10,6 +10,7 @@ export default class PowerUp {
 		this.lineSegments = []
 		this.initTimer()
 		this.initShape()
+		console.log(this)
 	}
 
 	initTimer() {

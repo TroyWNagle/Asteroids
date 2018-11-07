@@ -17,3 +17,19 @@ Projectile.js:
 
 11/6/2018
 --------------------------------------------------------------------------
+Math.js:
+  + Added a file to handle many things related to math
+    + Random Numbers, Direction between to points/vectors, collision detection
+
+Game.js:
+  - Took out the collision detection method
+  + Made sure all collision detection methods are handled by Math prototypes
+  - Took away game's direct control of the audio objects
+  - Took out, takePowerUp function. It wasn't really helping at all.
+    - I just take the power up right after detecting the collision
+
+Asteroids.js:
+  - Took out its collision detection method
+
+AudioController.js:
+  + Added an class that does nothing but control the audio objects

@@ -89,26 +89,6 @@ export default class Asteroid {
     this.velocity.y = -Math.sin(this.direction) * mag;
   }
 
-    /** @function collisionDetection()
-    * function to handle asteroid on asteroid violence
-    * @param float ax is the x position of the asteroid being checked against this
-    * @param float ay is the y position of the asteroid being checked against this
-    * @param int aradius is the radius of the asteroid being checked against this
-    */
-  collisionDetection(ax, ay, aradius) {
-    var dx = this.x - ax;
-    var dy = this.y - ay;
-    //Quick test to save some computation
-    if(Math.abs(dx) > this.radius + aradius || Math.abs(dy) > this.radius + aradius) {
-      return false;
-    }
-    var distance = dx * dx + dy * dy;
-    if(distance < Math.pow(this.radius + aradius, 2)) {
-      return true;
-    }
-    return false;
-  }
-
   /** @function edgeDetection()
     * function to handle the asteroid leaving the edge of the screen
     */

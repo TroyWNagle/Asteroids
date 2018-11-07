@@ -5,12 +5,15 @@ Sound:
 + Sound for player to shoot (laser audio object), still won't work
   + Temporary fix, using the UFO shoot sound
 
+--------------------------------------------------------------------------
+Fixed Bugs
 
 Power Ups:
 + If multiple power ups are present, when you pick one
   up, all of them disappear
   + Something Probably wrong with the takePowerUp() function
   + Only happens some times...?
+    - Fixed it, I'm an idiot. Splice takes an index, not an object
 
 Mechanics:
 + Homing shot -> Struggles when multiple UFOs in scanning arc
