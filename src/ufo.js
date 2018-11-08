@@ -12,6 +12,8 @@ export default class UFO extends Ship {
     this.x = x;
     this.y = y;
     this.initVelocity();
+    this.accel = {mag: 0.0, dir: 0.0}
+    this.acceleration = 0.2;
     //For visual
     this.innerRadius = 10;
     //For the actual size of the ship
@@ -59,6 +61,9 @@ export default class UFO extends Ship {
     else {
       this.rateOfFire = Math.randomInt(500, 1000);
     }
+    if(this.powerups[2]) {
+      this.rateOfFire = Math.round(this.rateOfFire / 2)
+    }
   }
 
   /** @function initLineSegments()
@@ -89,8 +94,7 @@ export default class UFO extends Ship {
     * Handles the initVelocity of the UFO
     */
   initVelocity() {
-    //Sets speed of the asteroids, more mass = slower
-    var mag = Math.randomBetween(2, 3);
+    var mag = Math.randomBetween(1, 2);
     this.speed.x = Math.randomBetween(-mag, mag);
     this.speed.y = Math.randomBetween(-mag, mag);
   }
@@ -122,46 +126,48 @@ export default class UFO extends Ship {
     }
   }
 
+  updateSpeed() {
+    //Alter the direction
+    this.speed.y += -Math.cos(this.accel.dir) * this.accel.mag;
+    this.speed.x += Math.sin(this.accel.dir) * this.accel.mag;
+    //Enforce the max x speed
+    if(Math.abs(this.speed.x) >= 1.5) {
+      if(this.speed.x < 0) {
+        this.speed.x = -1.5;
+      }
+      else {
+        this.speed.x = 1.5;
+      }
+    }
+    //Enfore the max y speed
+    if(Math.abs(this.speed.y) >= 1.5) {
+      if(this.speed.y < 0) {
+        this.speed.y = -1.5;
+      }
+      else {
+        this.speed.y = 1.5;
+      }
+    }
+  }
+
   /** @function edgeDetection()
     * function to handle the asteroid leaving the edge of the screen,  slightly different than player ship since it is okay for it to be off screen
     * Side note - UFO is much more vulnerable to asteroids off screen, cannot shoot to protect itself (though it will try) and asteroids switching sides may instantly destory it
     */
   edgeDetection() {
     if((this.x + this.bufferRadius >= 1000 && this.speed.x > 0) || (this.x - this.bufferRadius <= 0 && this.speed.x < 0)) {
-      this.speed.x = -this.speed.x;
+      this.speed.x *= -1
+      this.accel.dir += Math.PI
     }
     if((this.y + this.bufferRadius >= 1000 && this.speed.y > 0) || (this.y - this.bufferRadius <= 0 && this.speed.y < 0)) {
-      this.speed.y = -this.speed.y;
+      this.speed.y *= -1
+      this.accel.dir += Math.PI
     }
   }
 
-  /** @function alterPath()
-    * function to determine UFO dodging asteroids using the bufferRadius
-    * @param floats dx, dy - change in position between the UFO and asteroid, called from detectShipCrash from game.js
-    * Notes - Pretty simple avoidance AI, pretty much draws a box around the UFO. Updates the speed to oppisite the side of the asteroid.
-    * Not perfect by any means, but good enough to keep it alive surpisingly long even before I gave the UFO the ability to target asteroids
-    */
-  alterPath(dx, dy) {
-    if(dx < 0 && dy < 0) {
-      this.speed.x = Math.randomBetween(-2, -1);
-      this.speed.y = Math.randomBetween(-2, -1);
-    }
-    else if (dx > 0 && dy > 0) {
-      this.speed.x = Math.randomBetween(1, 2);
-      this.speed.y = Math.randomBetween(1, 2);
-    }
-    else if (dx > 0 && dy < 0) {
-      this.speed.x = Math.randomBetween(1, 2);
-      this.speed.y = Math.randomBetween(-2, -1);
-    }
-    else {
-      this.speed.x = Math.randomBetween(-2, -1);
-      this.speed.y = Math.randomBetween(1, 2);
-    }
-  }
-
-  avoidProjectile(x, y, direction) {
-
+  alterPath(direction) {
+    this.accel.mag = this.acceleration;
+    this.accel.dir = direction;
   }
 
   /** @function update()
@@ -169,6 +175,16 @@ export default class UFO extends Ship {
     */
   update() {
     this.edgeDetection();
+    this.updateSpeed();
+    super.checkPowerUps();
+    //Controlling the rate of fire
+    if(this.reloading) {
+      this.rateOfFire--;
+      if(this.rateOfFire <= 0) {
+        this.setRateOfFire()
+        this.reloading = false;
+      }
+    }
     if(this.speed.x > 0) {
       this.velocity.dir += 0.01;
     }

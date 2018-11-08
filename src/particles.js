@@ -23,36 +23,10 @@ export default class Particle {
     this.speedY = -Math.sin(direction) * this.speed;
   }
 
-  /*initColor(color) {
-    let string = '';
-    switch (color) {
-      case 'red':
-        string = 'rgb(255, 0, 0)';
-        this.rgb = [255, 0, 0]
-        this.colorAdjuster = [0, 5, 5];
-        break;
-      default:
-    }
-    return string;
-  }*/
-
-  /*changeColor() {
-    for(let i = 0; i < this.colorAdjuster.length; i ++) {
-      this.rgb[i] += this.colorAdjuster[i];
-      if(this.rgb[i] > 255) {
-        this.rgb[i] = 255;
-      }
-    }
-    this.color = 'rgb(' + this.rgb[0] + ', ' + this.rgb[1] + ', ' + this.rgb[2] + ')';
-    //console.log(this.color);
-    //console.log(this.rgb);
-  }*/
   /** @function update()
     * function to updates the particle if it hasn't hit the decay distance
     */
   update() {
-    var dx = this.startX - this.x;
-    var dy = this.startY - this.y;
     this.life--;
     this.x += this.speedX;
     this.y += this.speedY;

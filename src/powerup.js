@@ -14,9 +14,12 @@ export default class PowerUp {
 
 	initTimer() {
 		switch (this.type){
-				case 'homing':
+				case 1:
 					//30 seconds at 60 fps
-					this.timer = 1800;
+					this.timer = 900;
+					break;
+				case 2:
+					this.timer = 900;
 					break;
 			default:
 		}
@@ -24,8 +27,10 @@ export default class PowerUp {
 
 	initShape() {
 		switch (this.type) {
-			case 'homing':
+			case 1:
 				this.initLineSegments()
+				break;
+			case 2:
 				break;
 			default:
 

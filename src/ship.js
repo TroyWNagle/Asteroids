@@ -12,15 +12,20 @@ export default class Ship {
     //position of the center of the Ship
     this.x = 500;
     this.y = 500;
+    this.RATE = 40;
+    this.reloading = false;
+    this.rateOfFire = this.RATE;
     //Velocity to determine the magnitude/direction of the ship
+    //This is actually acceleration...
     this.velocity = {mag: 0.0, dir: 0.0};
     this.speed = {x: 0.0, y: 0.0};
     this.radius = 15;
     //particles for thruster trail
     this.particles = [];
     this.color = 'green';
-    this.powerups = {homing: false};
-    this.powerupTimers = {hTimer: 0}
+    // 1 = homing, 2 = rapid fire
+    this.powerups = {1: false, 2: false};
+    this.powerupTimers = {1: 0, 2: 0};
   }
 
   /** @function updateSpeed()
@@ -85,6 +90,17 @@ export default class Ship {
     }
   }
 
+  checkPowerUps() {
+    for(let i = 1; i <= this.powerups.length; i++) {
+      if(this.powerups[i]) {
+        this.powerupTimers[i]--;
+        if(this.powerupTimers[i] <= 0) {
+          this.powerups[i] = false;
+        }
+      }
+    }
+  }
+
   /** @function update()
     * handles the updating of the ships position and the particles tied to its trail
     */
@@ -92,10 +108,18 @@ export default class Ship {
     this.edgeDetection();
     this.x += this.speed.x;
     this.y += this.speed.y;
-    if(this.powerups.homing) {
-      this.powerupTimers.hTimer--;
-      if(this.powerupTimers.hTimer <= 0) {
-        this.powerups.homing = false;
+    this.checkPowerUps();
+    //Controlling the rate of fire
+    if(this.reloading) {
+      this.rateOfFire--;
+      if(this.rateOfFire <= 0) {
+        if(this.powerups[2]) {
+          this.rateOfFire = this.RATE / 2
+        }
+        else {
+          this.rateOfFire = this.RATE;
+        }
+        this.reloading = false;
       }
     }
     //Particle effect for the thruster

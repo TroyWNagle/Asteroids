@@ -25,8 +25,8 @@ export default class Projectile {
     */
   createParticles(numParticles) {
     //Get the back of the projectile
-    var x = this.x + Math.sin(this.velocity.dir)* this.radius;
-    var y = this.y - Math.cos(this.velocity.dir)* this.radius;
+    var x = this.x - Math.sin(this.velocity.dir)* this.radius;
+    var y = this.y + Math.cos(this.velocity.dir)* this.radius;
     for(var i = 0; i < numParticles; i++) {
       //Spread the particles over the projectile
       var dx = x + Math.randomBetween(-this.radius, this.radius);

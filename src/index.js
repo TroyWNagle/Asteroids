@@ -15,8 +15,8 @@ export default class Menu {
 	handleKeyDown(event){
 		event.preventDefualt();
 
-		if(this.gameState == 'menu') {
-			
+		if(this.gameState === 'menu') {
+
 		}
 	}
 
