@@ -11,9 +11,9 @@ export default class UFO extends Ship {
     super();
     this.x = x;
     this.y = y;
-    this.initVelocity();
     this.accel = {mag: 0.0, dir: 0.0}
     this.acceleration = 0.2;
+    this.asteroid = '';
     //For visual
     this.innerRadius = 10;
     //For the actual size of the ship
@@ -30,6 +30,10 @@ export default class UFO extends Ship {
     //For visual
     this.lineSegments = [];
     this.initLineSegments();
+    this.goal = '';
+    this.initVelocity();
+    //1 second, delay on when to start seeking out the goal again
+    this.clock = 60;
   }
 
   setColor() {
@@ -59,7 +63,7 @@ export default class UFO extends Ship {
       this.rateOfFire = Math.randomInt(300, 700);
     }
     else {
-      this.rateOfFire = Math.randomInt(500, 1000);
+      this.rateOfFire = Math.randomInt(300, 500);
     }
     if(this.powerups[2]) {
       this.rateOfFire = Math.round(this.rateOfFire / 2)
@@ -94,36 +98,7 @@ export default class UFO extends Ship {
     * Handles the initVelocity of the UFO
     */
   initVelocity() {
-    var mag = Math.randomBetween(1, 2);
-    this.speed.x = Math.randomBetween(-mag, mag);
-    this.speed.y = Math.randomBetween(-mag, mag);
-  }
-
-  /** @function initPosition()
-    * Handles the initial position of the UFO
-    */
-  initPosition() {
-    var spawnSide = Math.randomInt(1, 5);
-    //Top
-    if(spawnSide === 1) {
-      this.x = Math.randomBetween(-2 * this.radius, 1000 + 2 * this.radius);
-      this.y = - 2 * this.radius;
-    }
-    //Right
-    else if(spawnSide === 2) {
-      this.x = 1000 + 2 * this.radius;
-      this.y = Math.randomBetween(-2 * this.radius, 1000 + 2 * this.radius);
-    }
-    //Bottom
-    else if(spawnSide === 3) {
-      this.x = Math.randomBetween(-2 * this.radius, 1000 + 2 * this.radius);
-      this.y = 1000 + 2 * this.radius;
-    }
-    //Left
-    else {
-      this.x = - 2 * this.radius;
-      this.y = Math.randomBetween(-2 * this.radius, 1000 + 2 * this.radius);
-    }
+    this.goal = {x: Math.randomBetween(200, 800), y: Math.randomBetween(200, 800)};
   }
 
   updateSpeed() {
@@ -158,16 +133,72 @@ export default class UFO extends Ship {
     if((this.x + this.bufferRadius >= 1000 && this.speed.x > 0) || (this.x - this.bufferRadius <= 0 && this.speed.x < 0)) {
       this.speed.x *= -1
       this.accel.dir += Math.PI
+      this.accel.mag = 0.0
     }
     if((this.y + this.bufferRadius >= 1000 && this.speed.y > 0) || (this.y - this.bufferRadius <= 0 && this.speed.y < 0)) {
       this.speed.y *= -1
       this.accel.dir += Math.PI
+      this.accel.mag = 0.0
+    }
+  }
+
+  checkCollisions(asteroids, x, y) {
+    for(let j = 0; j < asteroids.length; j++) {
+      if(Math.circleCollisionDetection(x, y, this.critical, asteroids[j].x, asteroids[j].y, asteroids[j].radius)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  goToGoal() {
+    this.accel.dir = Math.getDirection(this.x, this.y, this.goal.x, this.goal.y);
+    this.accel.mag = this.acceleration;
+    let distance = Math.getDistance(this.x, this.y, this.goal.x, this.goal.y);
+    if(distance < this.radius) {
+      this.goal = '';
     }
   }
 
   alterPath(direction) {
     this.accel.mag = this.acceleration;
     this.accel.dir = direction;
+    if(this.goal !== '') {
+      //This is so it doesn't get pushed to zero by dodging a lot
+      this.clock = 60;
+      this.clock--;
+    }
+  }
+
+  catchAsteroid(asteroid) {
+    this.asteroid = asteroid
+    this.asteroid.velocity.x = this.speed.x;
+    this.asteroid.velocity.y = this.speed.y;
+  }
+
+  orbitAsteroid() {
+    let direction = Math.getDirection(this.x, this.y, this.asteroid.x, this.asteroid.y);
+    let distance = Math.getDistance(this.x, this.y, this.asteroid.x, this.asteroid.y)
+    let delta = 0.02;
+    let x = this.x + Math.sin(direction + delta) * distance;
+    let y = this.y - Math.cos(direction + delta) * distance;
+    this.asteroid.x = x;
+    this.asteroid.y = y;
+  }
+
+  checkAsteroidAlignment(player) {
+    let direction = Math.getDirection(this.x, this.y, this.asteroid.x, this.asteroid.y);
+    let aim = Math.getDirection(this.x, this.y, player.x, player.y);
+    let error = direction - aim;
+    //If it is only off my 5 degrees
+    if(Math.abs(error) < 5 * Math.PI / 180 && Math.random() > 0.5) {
+      let magnitude = 30 / this.asteroid.mass;
+      this.speed.y += -Math.cos(this.accel.dir) * this.accel.mag;
+      this.speed.x += Math.sin(this.accel.dir) * this.accel.mag;
+      this.asteroid.velocity.x = Math.sin(direction) * magnitude;
+      this.asteroid.velocity.y = -Math.cos(direction) * magnitude
+      this.asteroid = '';
+    }
   }
 
   /** @function update()
@@ -177,6 +208,15 @@ export default class UFO extends Ship {
     this.edgeDetection();
     this.updateSpeed();
     super.checkPowerUps();
+    if(this.clock < 60) {
+      this.clock--;
+      if(this.clock <= 0) {
+        this.clock = 60;
+      }
+    }
+    if(this.clock === 60 && this.goal !== '') {
+      this.goToGoal();
+    }
     //Controlling the rate of fire
     if(this.reloading) {
       this.rateOfFire--;
@@ -190,6 +230,16 @@ export default class UFO extends Ship {
     }
     else {
       this.velocity.dir -= 0.01;
+    }
+    if(this.asteroid !== '') {
+      if(this.asteroid.destroyed) {
+        this.asteroid = '';
+      }
+      else {
+        this.asteroid.velocity.x = this.speed.x;
+        this.asteroid.velocity.y = this.speed.y;
+        this.orbitAsteroid();
+      }
     }
     this.x += this.speed.x;
     this.y += this.speed.y;

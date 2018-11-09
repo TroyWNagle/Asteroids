@@ -48,6 +48,15 @@ Math.getDirection = function(x, y, x2, y2) {
   return direction;
 };
 
+Math.getDistance = function(x, y, x2, y2) {
+  //Get relative Distances
+  let dx = x - x2;
+  let dy = y - y2;
+  //Find hyp. of triangle
+  let dist = Math.sqrt(dx * dx + dy * dy);
+  return dist;
+};
+
 /** @function circleCollisionDetection
   * Function to detect collisions between two circles, kept as general
   * as possible for maximum versatility

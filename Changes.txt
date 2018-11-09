@@ -33,6 +33,7 @@ Game.js:
 
 Asteroids.js:
   - Took out its collision detection method
+  + Added variable destroyed to help the Blue UFO with letting go of destroyed asteroids
 
 AudioController.js:
   + Added an class that does nothing but control the audio objects
@@ -46,6 +47,8 @@ Ship.js:
   + Homing power up is working properly. Shots normally when it doesn't have a Homing
     power up.
   + Gave the player ship the variables to control reloading
+  + Rapid fire power up working properly
+  + Multiple power ups working properly
 UFO.js:
   + Made its avoidance function more dynamic
     + No goes the exact opposite way of an asteroid
@@ -55,8 +58,23 @@ UFO.js:
   + Its ability to shoot other UFOs is now regulated by its rate of fire
   + UFOs can now pick up the homing power up and use it
     + The homing projectiles only seek out the player, but can still run into anything
+  + Blue UFOs can now catch asteroids and fling them at the player
 
 PowerUp.js:
   + Added the rapid power up, cuts reload time in half
   + Adjusted the timers of bother power ups to be 15 seconds
   + Changed type from a string to a number, to use the {}
+
+11/7/2018
+---------------------------------------------------------------
+UFO.js:
+  + Tried to implement a pre-calculating pathfinding algorithm
+    + Recursive solution didn't work, and crashed the game
+    + Loop solution didn't work, and bogged down the game
+  + Ended up going with a pseudo pathfinding solution
+    + Gave the UFO a point to go to (power up location), will try to go but Will
+      still avoid asteroids on the way
+    + Every time it dodges an asteroid on the way to a power up, it has a small delay
+      on trying to go towards the power up again.
+    + Isn't perfect, but it works. And it will force you to find a way to beat the UFO to the power up
+    

@@ -5,6 +5,11 @@ Sound:
 + Sound for player to shoot (laser audio object), still won't work
   + Temporary fix, using the UFO shoot sound
 
+UFOs / Asteroids:
+ + Asteroids caught by UFOs phase through each other...
+  + Not really sure how to approach fixing that.
+  + Will be pretty rare in an actual setting, but still.
+
 --------------------------------------------------------------------------
 Fixed Bugs
 

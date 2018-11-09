@@ -15,11 +15,11 @@ export default class PowerUp {
 	initTimer() {
 		switch (this.type){
 				case 1:
-					//30 seconds at 60 fps
+					//15 seconds at 60 fps
 					this.timer = 900;
 					break;
 				case 2:
-					this.timer = 900;
+					this.timer = 1200;
 					break;
 			default:
 		}

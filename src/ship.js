@@ -17,12 +17,17 @@ export default class Ship {
     this.rateOfFire = this.RATE;
     //Velocity to determine the magnitude/direction of the ship
     //This is actually acceleration...
+    this.thrust = 0.1;
     this.velocity = {mag: 0.0, dir: 0.0};
     this.speed = {x: 0.0, y: 0.0};
     this.radius = 15;
     //particles for thruster trail
     this.particles = [];
     this.color = 'green';
+    this.MAXBOOST = 120;
+    this.boosting = false;
+    this.boost = 120;
+    this.TOPSPEED = 3.0;
     // 1 = homing, 2 = rapid fire
     this.powerups = {1: false, 2: false};
     this.powerupTimers = {1: 0, 2: 0};
@@ -36,21 +41,21 @@ export default class Ship {
     this.speed.y += -Math.cos(this.velocity.dir) * this.velocity.mag;
     this.speed.x += Math.sin(this.velocity.dir) * this.velocity.mag;
     //Enforce the max x speed
-    if(Math.abs(this.speed.x) >= 3.0) {
+    if(Math.abs(this.speed.x) >= this.TOPSPEED) {
       if(this.speed.x < 0) {
-        this.speed.x = -3.0;
+        this.speed.x = -this.TOPSPEED;
       }
       else {
-        this.speed.x = 3.0;
+        this.speed.x = this.TOPSPEED;
       }
     }
     //Enfore the max y speed
-    if(Math.abs(this.speed.y) >= 3.0) {
+    if(Math.abs(this.speed.y) >= this.TOPSPEED) {
       if(this.speed.y < 0) {
-        this.speed.y = -3.0;
+        this.speed.y = -this.TOPSPEED;
       }
       else {
-        this.speed.y = 3.0;
+        this.speed.y = this.TOPSPEED;
       }
     }
   }
@@ -86,12 +91,17 @@ export default class Ship {
       var dx = x + Math.randomBetween(-3, 3);
       var dy = y + Math.randomBetween(-3, 3);
       //Create new Particle
-      this.particles.push(new Particle(dx, dy, Math.PI * this.velocity.dir, 2.0, 'red', 20));
+      if(this.boosting && this.boost > 0) {
+        this.particles.push(new Particle(dx, dy, Math.PI * this.velocity.dir, 2.0, 'blue', 20));
+      }
+      else {
+        this.particles.push(new Particle(dx, dy, Math.PI * this.velocity.dir, 2.0, 'red', 20));
+      }
     }
   }
 
   checkPowerUps() {
-    for(let i = 1; i <= this.powerups.length; i++) {
+    for(let i = 1; i <= 2; i++) {
       if(this.powerups[i]) {
         this.powerupTimers[i]--;
         if(this.powerupTimers[i] <= 0) {
@@ -122,6 +132,11 @@ export default class Ship {
         this.reloading = false;
       }
     }
+
+    if(!this.boosting && this.boost < this.MAXBOOST) {
+      this.boost++;
+    }
+
     //Particle effect for the thruster
     for(var j = 0; j < this.particles.length; j++) {
       this.particles[j].update();
