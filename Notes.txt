@@ -17,6 +17,7 @@ Things to Add:
   + Enemy types
     + UFO that dodges?
     + UFO that has a recharging shield?
+      - I think having one of the UFOs stealing powers is fine.
     + UFO that catches small asteroids and uses them as shields????
       + Could be very problematic, but really cool..
       + What happens when a carried asteroid bumps into a non carried one?
@@ -33,8 +34,69 @@ Things to Add:
     + Shield
       + Ship can take a hit before being destroyed
     + Large Projectiles
+      - Not sure that it would really add all that much
     + Fast Projectiles
+      - Not sure that it would add all that much
 
 Things to remove:
   + Master Reset button
     + Should just have a pause menu or something, similar to main menu
+--------------------------------------------------------------------------------
+11/12/2018
+I think in terms of raw game Mechanics, I am done adding things. Time to start polishing things.
+--------------------------------------------------------------------------------
+Things to Do:
+  Needed sound effects:
+    + Breaking a shield
+    + Picking up a power up
+      + Different for UFOs?
+    + Asteroid breaking a power up
+    + Blue UFO catching an asteroid?
+
+  Needed/Changed visual effects:
+    + Particle effect for the Blue UFO while it has an asteroid in its grasp
+    + Particles have a strobe effect?
+    + Small particle trail for UFOs always? Similar to the player ship but more subtle.
+    + Points earned pop up where ever they were earned.
+    + Extra life pop ups after killing a Purple UFO
+    + Purple & Blue UFOs are pretty dark. Make them brighter colors?
+    + Need a dynamic boost gauge
+    + Need to display active powerups
+    + Homing Projectiles should be unique, it is very difficult to tell what is homing & what isn't.
+    + Screen Shake? Idk I don't really like screen shake too much.
+      + Frame pausing on Explosions? I'm not sure how well the interval will be with that.
+      + Or could just go extra crazy with the particle explosions?
+
+  Menu:
+    + Start
+      + immediately throws you into a game, maybe a count down?
+    + Options
+      + Mostly Sound
+      + Change control bindings?
+    + Glossary or Guide Book
+      + Power Ups & descriptions
+      + UFO types and behaviors
+    + Control Layout
+      + WASD & Arrow Keys
+      + Space to shoot
+      + Enter to boost
+      + F to teleport
+
+  Structural Changes:
+    + Levels
+      + Determines max Asteroids & UFOs
+        + Levels are determined by score milestones?
+        + Levels are determined by number of UFOs Killed?
+      + No hard stops between levels
+        + Maxes for UFOs & asteroids increase and yo keep going
+    + Asteroids
+      + Asteroids should always be at max
+        + If number of asteroids drops below the max, make a new one
+      + Max Asteroids will scale very slowly, & will probably cap to make it manageable.
+    + Power ups
+      + No max
+      + Spawn timer will scale with number of powerups in play
+        + To keep things from getting too hectic or too boring
+    + UFOs
+      + Spawn timer will scale with number of UFOs in play & level
+        + Higher the level, the lower the scaling

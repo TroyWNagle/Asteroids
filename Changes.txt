@@ -30,6 +30,7 @@ Game.js:
   + Changed how it pushes power up data to the player
   - Moved reloading control to the player ship
   + createProjectile & ufoProjectile functions both now always make the ships reload at the end
+  + Allow the blue UFOs to ignore the asteroid it has caught when navigating
 
 Asteroids.js:
   - Took out its collision detection method
@@ -77,4 +78,54 @@ UFO.js:
     + Every time it dodges an asteroid on the way to a power up, it has a small delay
       on trying to go towards the power up again.
     + Isn't perfect, but it works. And it will force you to find a way to beat the UFO to the power up
-    
+  + All UFOs now use the pseudo pathfinding at the beginning of their lives to get on screen.
+
+Game.js:
+  + Fixed somethings that were messing up power up pick ups.
+  + Added Enter the to key map for the player boost
+
+Ship.js:
+  + Add variables to allow the player too boost (boost, boosting, MAXBOOST)
+  + Updating conditionals for boosts
+  + Made a TOPSPEED variable for ease of use
+  + Particle trail turns blue when boosting
+  + Boost regenerates at 1 per frame when not boosting and not at MAXBOOST
+
+11/8/2018
+-----------------------------------------------------------------
+UFO.js:
+  + Changed the alterPath function to only decrement the clock for the Orange UFOs
+    + This it to allow the clock variable to also be used for the purple UFOs' ability to dodge
+      projectiles.
+  + Added particle effect trail.
+    + The math to determine where the particles spawn doesn't make sense.
+      + Since the display coordinates are upside down, I just made sure they look the way they are suppose to.
+    + UFO now has a particles array to update & render its trail.
+  + UFOs can pick up shields now, and they behave properly
+Ship.js:
+  + Added a property called shield
+    + I might just make it have a timer to simplify things and add it as a powerup type
+    + Just added it to the list of powerups with a really long timer.
+  + Made the variable velocity into accel Because it actually is acceleration.
+  + Removed the velocity variable and replaced it with velocityDirection.
+    + Speed x & y are actually controlling magnitude of velocity
+Game.js:
+  + Added projectileDodger function to allow the purple UFOs to dodge projectiles.
+    + The ability to dodge is governed by the clock property & 2 times the buffer radius to
+      to allow for more consistent dodging.
+    + The UFO just tries to move away from the projectile, so if the projectile is dead on target, it will still hit.
+    + This is to make sure the UFO isn't too frustrating to fight.
+    + Because purple UFOs are the rarest and give a life when killed, they should be the hardest to kill. Furthermore,
+      it forces the player to use power ups to kill them, if they don't have the skill to shoot them down.
+  + Changed the loop in the update function that handles projectile & UFO collisions. It now incorporates the
+    projectileDodger function for the purple UFOs.
+  - Removed the ability of the purple UFOs to shoot other UFOs. It didn't really make any sense.
+    But they can still shoot other UFOs when on a collision course.
+  + Changed some things to align with the new variable changes from ship.js.
+  + Updated the masterReset function so I can use it for debugging
+  + Added some constants to help with level scaling.
+  + Added variable kills.
+    + Keeps track of how many UFOs you have killed.
+    + Every 5 you kill, you go up a level.
+  + Level determins number of asteroids & UFO spawn times.
+    + It gets crazy very quickly at the moment.

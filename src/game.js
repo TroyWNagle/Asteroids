@@ -18,14 +18,19 @@ export default class Game {
     */
   constructor() {
     this.screenSide = 1000;
+    //Absolutes
+    this.MAXUFO = 5;
+    this.MAXASTEROIDS = 15;
+    this.UFOTIME = 500;
+    this.POWERTIME = 900;
     //Num Objects
     this.numAsteroids = 5;
     //Objects/Arrays
     this.ship = new Ship();
     this.ufos = [];
-    this.MAXUFO = 5;
+    this.kills = 0;
     //Variables to control ufo spawn
-    this.ufoTimer = Math.randomInt(500, 1000);
+    this.ufoTimer = Math.randomInt(this.UFOTIME, this.UFOTIME * 2);
     //var To control ufo firing
     //this.ufoRateOfFire = Math.randomInt(150, 350);
     //Vars to help with respawning the player
@@ -40,11 +45,13 @@ export default class Game {
     this.highscore = 0;
     this.lives = 3;
     this.level = 1;
+    //Make sure there are never fewer than the inital amount of asteroids
+    this.constAsteroids = this.level * this.numAsteroids;
     //controls the teleport function
     this.teleports = 10;
     this.coolingDown = 50;
     this.powerups = [];
-    this.powerupTimer = Math.randomInt(1000, 5000);
+    this.powerupTimer = Math.randomInt(this.POWERTIME, this.POWERTIME * 3);
     //Over Loop Controllers
     this.gameOver = false;;
     this.paused = false;
@@ -93,18 +100,17 @@ export default class Game {
     this.ship = new Ship();
     this.ufos = [];
     //Variables to control ufo spawn
-    this.ufoTimer = Math.randomInt(1000, 2000);
+    this.ufoTimer = Math.randomInt(this.UFOTIME, this.UFOTIME * 2);
+    this.powerups = [];
+    this.powerupTimer = Math.randomInt(this.POWERTIME, this.POWERTIME * 3);
     //var To control ufo firing
     //this.ufoRateOfFire = Math.randomInt(150, 350);
     //Vars to help with respawning the player
     this.respawning = false;
     this.respawnTimer = 300;
     this.projectiles = [];
-    //Vars to help control player projectiles
-    this.rateOfFire = 40;
-    this.reloading = false;
     this.asteroids = [];
-    this.numAsteroids = 10;
+    this.numAsteroids = 5;
     this.createAsteroids();
     this.particles = [];
     //HUD Variables
@@ -156,13 +162,13 @@ export default class Game {
     */
   createProjectile() {
     //Get the coordinates of the tip of the ship, The 1.2 is so you can't run into your own shot immediately
-    var x = this.ship.x + Math.sin(this.ship.velocity.dir)* this.ship.radius * 1.2;
-    var y = this.ship.y - Math.cos(this.ship.velocity.dir)* this.ship.radius * 1.2;
+    var x = this.ship.x + Math.sin(this.ship.accel.dir)* this.ship.radius * 1.2;
+    var y = this.ship.y - Math.cos(this.ship.accel.dir)* this.ship.radius * 1.2;
     if(this.ship.powerups[1]) {
-      this.projectiles.push(new Homing(x, y, this.ship.velocity.dir, this.ship.color));
+      this.projectiles.push(new Homing(x, y, this.ship.accel.dir, this.ship.color));
     }
     else {
-      this.projectiles.push(new Projectile(x, y, this.ship.velocity.dir, this.ship.color));
+      this.projectiles.push(new Projectile(x, y, this.ship.accel.dir, this.ship.color));
     }
     this.ship.reloading = true;
   }
@@ -300,11 +306,14 @@ export default class Game {
     let x = Math.randomInt(this.screenSide * 0.10, this.screenSide * 0.90)
     let y = Math.randomInt(this.screenSide * 0.10, this.screenSide * 0.90)
     let random = Math.random();
-    if(random > 0.50) {
+    if(random > 0.66) {
       this.powerups.push(new PowerUp(x, y, 1));
     }
-    else {
+    else if (random > 0.33) {
       this.powerups.push(new PowerUp(x, y, 2));
+    }
+    else {
+      this.powerups.push(new PowerUp(x, y, 3));
     }
   }
 
@@ -366,15 +375,15 @@ export default class Game {
   }
 
   projectileDodger(ufo, projectile) {
-    var dx = ufo.x - projectile.x;
-    var dy = ufo.y - projectile.y;
-    var distance = dx * dx + dy * dy;
-    //check if ufo
-    if(distance < (ufo.radius + projectile.radius) * (ufo.radius + projectile.radius)) {
-      return true;
+    var distance = Math.getDistance(ufo.x, ufo.y, projectile.x, projectile.y);
+    if(distance < (ufo.bufferRadius * 2 + projectile.radius)) {
+      var direction = Math.getDirection(projectile.x, projectile.y, ufo.x, ufo.y);
+      ufo.alterPath(direction);
+      ufo.clock = 60;
+      ufo.clock--;
     }
-    if(distance < (ufo.bufferRadius + projectile.radius) * (ufo.bufferRadius + projectile.radius)) {
-
+    if(distance < (ufo.radius + projectile.radius)) {
+      return true;
     }
     return false;
   }
@@ -436,8 +445,8 @@ export default class Game {
       return;
     }
     if(distance < Math.pow(ship.bufferRadius + asteroid.radius, 2)) {
-      let direction = Math.getDirection(ship.x, ship.y, asteroid.x, asteroid.y);
-      ship.alterPath(direction + Math.PI);
+      let direction = Math.getDirection(asteroid.x, asteroid.y, ship.x, ship.y);
+      ship.alterPath(direction);
       if(ship.color === 'blue' && asteroid.radius < ship.critical && ship.asteroid === '') {
         ship.catchAsteroid(asteroid)
       }
@@ -541,6 +550,7 @@ export default class Game {
     if(this.ufos[ufoID].bounty === 200) {
       this.lives++;
     }
+    this.kills++;
     this.ufos.splice(ufoID, 1);
     this.audioController.trigger('ship explosion');
   }
@@ -588,19 +598,34 @@ export default class Game {
         ufo.checkAsteroidAlignment(this.ship);
       }
     });
+    if(this.asteroids.length < this.constAsteroids) {
+      console.log("Adding asteroid");
+      this.addAsteroid(-1.0);
+      this.numAsteroids++;
+    }
     //Update each asteroid
     this.asteroids.forEach(asteroid => {
       asteroid.update();
     });
 
     //Update Level if no more asteroids
-    if(this.asteroids.length === 0) {
+    if(this.kills !== 0 && this.kills % (this.level * 5) === 0) {
       this.level++;
       //You Will Probably Need These
-      this.lives += this.level;
+      this.lives++;
       this.teleports += this.level;
-      this.numAsteroids = 10 + 2 * this.level;
-      this.createAsteroids();
+      let initAsteroids = 5 + 2 * this.level;
+      if(initAsteroids > this.MAXASTEROIDS) {
+        initAsteroids = this.MAXASTEROIDS;
+      }
+      let difference = initAsteroids - this.asteroids.length;
+      if(this.asteroids.length < initAsteroids) {
+        for(let i = 0; i < difference; i++) {
+          this.addAsteroid(-1.0);
+          this.numAsteroids++;
+        }
+      }
+      this.constAsteroids = this.numAsteroids;
     }
 
     //Determine UFO spawning
@@ -608,14 +633,14 @@ export default class Game {
       this.ufoTimer--;
       if(this.ufoTimer <= 0) {
         this.addUFO();
-        this.ufoTimer = Math.randomInt(1000, 2000);
+        this.ufoTimer = Math.randomInt(this.UFOTIME * (this.ufos.length / this.level), this.UFOTIME * 2 * (this.ufos.length / this.level));
       }
     }
 
     this.powerupTimer--;
     if(this.powerupTimer <= 0) {
       this.createPowerUp();
-      this.powerupTimer = Math.randomInt(1000, 5000)
+      this.powerupTimer = Math.randomInt(this.POWERTIME * this.powerups.length, this.POWERTIME * 3 * this.powerups.length)
     }
 
     //Control respawning
@@ -675,7 +700,7 @@ export default class Game {
         this.powerups.splice(i, 1);
         break;
       }
-      for(let j = 0; j < this.ufos.length; j ++) {
+      for(let j = 0; j < this.ufos.length; j++) {
         if(Math.circleCollisionDetection(this.ufos[j].x, this.ufos[j].y, this.ufos[j].radius, this.powerups[i].pos.x, this.powerups[i].pos.y, this.powerups[i].radius)) {
           this.explode(this.ufos[j].x, this.ufos[j].y, this.ufos[j].color);
           this.ufos[j].powerups[this.powerups[i].type] = true;
@@ -684,6 +709,16 @@ export default class Game {
             this.ufos[j].reloading = false;
             this.ufos[j].setRateOfFire();
           }
+          this.powerups.splice(i, 1);
+          break;
+        }
+      }
+    }
+
+    for(let i = 0; i < this.powerups.length; i++) {
+      for(let k = 0; k < this.asteroids.length; k++) {
+        if(Math.circleCollisionDetection(this.asteroids[k].x, this.asteroids[k].y, this.asteroids[k].radius, this.powerups[i].pos.x, this.powerups[i].pos.y, this.powerups[i].radius)) {
+          this.explode(this.powerups[i].pos.x, this.powerups[i].pos.y, this.powerups[i].color);
           this.powerups.splice(i, 1);
           break;
         }
@@ -735,21 +770,52 @@ export default class Game {
     for(let i = 0; i < this.projectiles.length; i++) {
       if(!this.respawning && Math.circleCollisionDetection(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius,
         this.ship.x, this.ship.y, this.ship.radius)) {
-        this.explode(this.ship.x, this.ship.y, this.ship.color);
+        if(this.ship.powerups[3]) {
+          this.explode(this.ship.x, this.ship.y, 'magenta');
+          this.ship.powerups[3] = false;
+          this.ship.powerupTimers[3] = 0;
+        }
+        else {
+          this.explode(this.ship.x, this.ship.y, this.ship.color);
+          this.audioController.trigger('ship explosion');
+          this.respawn();
+        }
         this.explode(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].color);
         this.projectiles.splice(i, 1);
-        this.audioController.trigger('ship explosion');
-        this.respawn();
         break;
       }
       for(let j = 0; j < this.ufos.length; j ++) {
-        if (Math.circleCollisionDetection(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius,
-          this.ufos[j].x, this.ufos[j].y, this.ufos[j].radius)) {
-            this.explode(this.ufos[j].x, this.ufos[j].y, this.ufos[j].color);
+        if(this.ufos[j].color === 'purple' && this.ufos[j].clock === 60) {
+          if(this.projectileDodger(this.ufos[j], this.projectiles[i])) {
+            if(this.ufos[j].powerups[3]) {
+              this.explode(this.ufos[j].x, this.ufos[j].y, 'magenta');
+              this.ufos[j].powerups[3] = false;
+              this.ufos[j].powerupTimers[3] = 0;
+            }
+            else {
+              this.explode(this.ufos[j].x, this.ufos[j].y, this.ufos[j].color);
+              this.destoryUFO(j);
+              this.audioController.trigger('ship explosion');
+            }
             this.explode(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].color);
             this.projectiles.splice(i, 1);
-            this.destoryUFO(j);
-            this.audioController.trigger('ship explosion');
+            break;
+          }
+        }
+        else if (Math.circleCollisionDetection(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius,
+          this.ufos[j].x, this.ufos[j].y, this.ufos[j].radius)) {
+            if(this.ufos[j].powerups[3]) {
+              this.explode(this.ufos[j].x, this.ufos[j].y, 'magenta');
+              this.ufos[j].powerups[3] = false;
+              this.ufos[j].powerupTimers[3] = 0;
+            }
+            else {
+              this.explode(this.ufos[j].x, this.ufos[j].y, this.ufos[j].color);
+              this.destoryUFO(j);
+              this.audioController.trigger('ship explosion');
+            }
+            this.explode(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].color);
+            this.projectiles.splice(i, 1);
             break;
         }
       }
@@ -758,32 +824,30 @@ export default class Game {
     //Input Map Applying
     //A or Left Arrow
     if(this.keyMap[65] || this.keyMap[37]){
-      this.ship.velocity.dir -= 0.05;
-      if(this.ship.velocity.dir <= -Math.PI * 2) {
-        this.ship.velocity.dir = 0.0;
+      this.ship.accel.dir -= 0.07;
+      if(this.ship.accel.dir <= -Math.PI * 2) {
+        this.ship.accel.dir += Math.PI * 2;
       }
     }
     //D or Right Arrow
     if(this.keyMap[68] || this.keyMap[39]) {
-      this.ship.velocity.dir += 0.05;
-      if(this.ship.velocity.dir >= Math.PI * 2) {
-        this.ship.velocity.dir = 0.0;
+      this.ship.accel.dir += 0.07;
+      if(this.ship.accel.dir >= Math.PI * 2) {
+        this.ship.accel.dir -= Math.PI * 2;
       }
     }
     //W or Up Arrow
     if((this.respawnTimer <= 150 || !this.respawning)) {
       this.ship.boosting = false;
       if(this.keyMap[13] && this.ship.boost >= 0) {
-        this.ship.velocity.mag = this.ship.thrust * 3;
         this.ship.boosting = true;
         this.ship.boost--;
-        this.ship.updateSpeed();
+        this.ship.updateSpeed(this.ship.accel.mag * 3);
         let numParticles = Math.floor(Math.randomBetween(4, 8));
         this.ship.createParticles(numParticles);
       }
       else if ((this.keyMap[87] || this.keyMap[38])) {
-        this.ship.velocity.mag = this.ship.thrust;
-        this.ship.updateSpeed();
+        this.ship.updateSpeed(this.ship.accel.mag);
         let numParticles = Math.floor(Math.randomBetween(1, 4));
         this.ship.createParticles(numParticles);
       }
@@ -804,17 +868,7 @@ export default class Game {
       let ufo = this.ufos[i];
       ufo.rateOfFire--;
       if(ufo.rateOfFire <= 0) {
-        if(ufo.color === 'purple' && this.ufos.length > 1 && Math.random() > 0.5) {
-          if(i + 1 < this.ufos.length) {
-            this.ufoProjectile(ufo, this.ufos[i + 1].x, this.ufos[i + 1].y);
-          }
-          else if (i - 1 >= 0) {
-            this.ufoProjectile(ufo, this.ufos[i - 1].x, this.ufos[i - 1].y);
-          }
-        }
-        else {
-          this.ufoProjectile(ufo, this.ship.x, this.ship.y);
-        }
+        this.ufoProjectile(ufo, this.ship.x, this.ship.y);
         ufo.setRateOfFire();
       }
     }

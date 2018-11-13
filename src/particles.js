@@ -18,19 +18,35 @@ export default class Particle {
     this.y = y;
     this.life = life;
     this.color = color;
+    this.alpha = 1.0;
+    this.values = {high: 1.0, low: 0.7};
+    this.clock = 10;
     this.speed = Math.randomInt(0, speed);
     this.speedX = Math.cos(direction) * this.speed;
     this.speedY = -Math.sin(direction) * this.speed;
+  }
+
+  changeAlpha() {
+    if(this.alpha === this.values.high) {
+      this.alpha = this.values.low;
+    }
+    else {
+      this.alpha = this.values.high;
+    }
   }
 
   /** @function update()
     * function to updates the particle if it hasn't hit the decay distance
     */
   update() {
+    this.clock--;
+    if(this.clock <= 0) {
+      this.clock = 10;
+      this.changeAlpha();
+    }
     this.life--;
     this.x += this.speedX;
     this.y += this.speedY;
-    //this.changeColor();
   }
   /** @function render()
     * standard render function
@@ -38,6 +54,7 @@ export default class Particle {
   render(ctx) {
     ctx.save();
     ctx.fillStyle = this.color;
+    ctx.globalAlpha = this.alpha;
     ctx.beginPath();
     ctx.arc(this.x, this.y, 1, 0, Math.PI * 2);
     ctx.closePath();

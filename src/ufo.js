@@ -1,4 +1,5 @@
 import Ship from './ship.js';
+import Particle from './particles.js';
 
 /** @class UFO
   * Class to handle the UFO, inherits from the Ship class
@@ -11,6 +12,7 @@ export default class UFO extends Ship {
     super();
     this.x = x;
     this.y = y;
+    this.rotation = 0.0;
     this.accel = {mag: 0.0, dir: 0.0}
     this.acceleration = 0.2;
     this.asteroid = '';
@@ -132,12 +134,12 @@ export default class UFO extends Ship {
   edgeDetection() {
     if((this.x + this.bufferRadius >= 1000 && this.speed.x > 0) || (this.x - this.bufferRadius <= 0 && this.speed.x < 0)) {
       this.speed.x *= -1
-      this.accel.dir += Math.PI
+      this.accel.dir += Math.PI / 2
       this.accel.mag = 0.0
     }
     if((this.y + this.bufferRadius >= 1000 && this.speed.y > 0) || (this.y - this.bufferRadius <= 0 && this.speed.y < 0)) {
       this.speed.y *= -1
-      this.accel.dir += Math.PI
+      this.accel.dir += Math.PI / 2
       this.accel.mag = 0.0
     }
   }
@@ -163,7 +165,7 @@ export default class UFO extends Ship {
   alterPath(direction) {
     this.accel.mag = this.acceleration;
     this.accel.dir = direction;
-    if(this.goal !== '') {
+    if(this.goal !== '' && this.color === 'orange') {
       //This is so it doesn't get pushed to zero by dodging a lot
       this.clock = 60;
       this.clock--;
@@ -191,13 +193,27 @@ export default class UFO extends Ship {
     let aim = Math.getDirection(this.x, this.y, player.x, player.y);
     let error = direction - aim;
     //If it is only off my 5 degrees
-    if(Math.abs(error) < 5 * Math.PI / 180 && Math.random() > 0.5) {
+    if(Math.abs(error) < 5 * Math.PI / 180) {
       let magnitude = 30 / this.asteroid.mass;
       this.speed.y += -Math.cos(this.accel.dir) * this.accel.mag;
       this.speed.x += Math.sin(this.accel.dir) * this.accel.mag;
       this.asteroid.velocity.x = Math.sin(direction) * magnitude;
       this.asteroid.velocity.y = -Math.cos(direction) * magnitude
       this.asteroid = '';
+    }
+  }
+
+  /** @function createParticles()
+    * function to handle creating the particles for the thruster trail
+    * @param int numParticles - number of particles to be created
+    */
+  createParticles(numParticles) {
+    for(var i = 0; i < numParticles; i++) {
+      var angle = this.velocityDirection + Math.randomBetween(-Math.PI, 0);
+      var x = this.x - Math.cos(angle) * this.radius;
+      var y = this.y + Math.sin(angle) * this.radius;
+      //Create new Particle
+      this.particles.push(new Particle(x, y, Math.PI + this.velocityDirection, 0.5, this.color, 30));
     }
   }
 
@@ -208,6 +224,7 @@ export default class UFO extends Ship {
     this.edgeDetection();
     this.updateSpeed();
     super.checkPowerUps();
+    super.updateDirection();
     if(this.clock < 60) {
       this.clock--;
       if(this.clock <= 0) {
@@ -226,10 +243,10 @@ export default class UFO extends Ship {
       }
     }
     if(this.speed.x > 0) {
-      this.velocity.dir += 0.01;
+      this.rotation += 0.01;
     }
     else {
-      this.velocity.dir -= 0.01;
+      this.rotation -= 0.01;
     }
     if(this.asteroid !== '') {
       if(this.asteroid.destroyed) {
@@ -243,6 +260,14 @@ export default class UFO extends Ship {
     }
     this.x += this.speed.x;
     this.y += this.speed.y;
+    this.createParticles(1)
+    //Particle effect for the thruster
+    for(var j = 0; j < this.particles.length; j++) {
+      this.particles[j].update();
+      if(this.particles[j].life <= 0) {
+        this.particles.splice(j, 1);
+      }
+    }
   }
 
  /** @function render()
@@ -252,7 +277,7 @@ export default class UFO extends Ship {
     ctx.save();
     ctx.strokeStyle = this.color;
     ctx.translate(this.x, this.y);
-    ctx.rotate(this.velocity.dir);
+    ctx.rotate(this.rotation);
     ctx.beginPath();
     ctx.arc(0, 0, this.innerRadius, 0, Math.PI * 2);
     ctx.closePath();
@@ -268,5 +293,12 @@ export default class UFO extends Ship {
       ctx.stroke();
     });
     ctx.restore();
+    //Render particles
+    this.particles.forEach(particle => {
+      particle.render(ctx);
+    });
+    if(this.powerups[3]) {
+      super.drawShield(ctx);
+    }
   }
 }

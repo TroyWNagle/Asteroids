@@ -14,12 +14,21 @@ export default class PowerUp {
 
 	initTimer() {
 		switch (this.type){
+				//Homing
 				case 1:
 					//15 seconds at 60 fps
 					this.timer = 900;
 					break;
+				//Rapid Fire
 				case 2:
+					//20 seconds at 60 fps
 					this.timer = 1200;
+					break;
+				//Shield
+				case 3:
+					//60 seconds at 60 fps
+					this.timer = 3600;
+					this.color = 'magenta';
 					break;
 			default:
 		}
