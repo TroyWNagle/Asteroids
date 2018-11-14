@@ -1,7 +1,7 @@
 {
   "name": "Asteroids",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "homepage": "https://TroyWNagle.github.io/Asteroids",
   "dependencies": {
     "gh-pages": "^2.0.1",

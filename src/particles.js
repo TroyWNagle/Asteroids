@@ -22,6 +22,7 @@ export default class Particle {
     this.values = {high: 1.0, low: 0.7};
     this.clock = 10;
     this.speed = Math.randomInt(0, speed);
+    this.direction = direction;
     this.speedX = Math.cos(direction) * this.speed;
     this.speedY = -Math.sin(direction) * this.speed;
   }
@@ -35,6 +36,11 @@ export default class Particle {
     }
   }
 
+  updateSpeed() {
+    this.speedX = Math.cos(this.direction) * this.speed;
+    this.speedY = -Math.sin(this.direction) * this.speed;
+  }
+
   /** @function update()
     * function to updates the particle if it hasn't hit the decay distance
     */
@@ -45,6 +51,10 @@ export default class Particle {
       this.changeAlpha();
     }
     this.life--;
+    if(this.speed > 0) {
+      this.speed -= 0.05;
+      this.updateSpeed();
+    }
     this.x += this.speedX;
     this.y += this.speedY;
   }

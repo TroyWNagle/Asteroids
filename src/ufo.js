@@ -25,8 +25,10 @@ export default class UFO extends Ship {
     //When the Ship is on the verge of crashing into an asteroid, it shoots to destory it
     this.critical = 40;
     this.color = "";
+    this.clock = 0;
     this.bounty = 0;
     this.setColor();
+    this.setClock();
     this.rateOfFire = 0;
     this.setRateOfFire();
     //For visual
@@ -35,18 +37,21 @@ export default class UFO extends Ship {
     this.goal = '';
     this.initVelocity();
     //1 second, delay on when to start seeking out the goal again
-    this.clock = 60;
   }
 
   setColor() {
     var color;
     var random = Math.randomInt(0, 101);
     //Spawn UFO and reset Timer
-    if(random > 80) {
+    if(random > 90) {
+      color = 'fuchsia';
+      this.bounty = 500;
+    }
+    else if(random > 85) {
       color = 'purple';
       this.bounty = 200;
     }
-    else if (random > 50) {
+    else if (random > 45) {
       color = 'blue';
       this.bounty = 150;
     }
@@ -57,8 +62,24 @@ export default class UFO extends Ship {
     this.color = color;
   }
 
+  setClock() {
+    this.CLOCK = 0;
+    if(this.color === 'purple' || this.color === 'fuchsia') {
+      this.CLOCK = 5;
+      this.clock = this.CLOCK;
+    }
+    else if(this.color === 'blue') {
+      this.CLOCK = 30;
+      this.clock = this.CLOCK;
+    }
+    else {
+      this.CLOCK = 60;
+      this.clock = this.CLOCK;
+    }
+  }
+
   setRateOfFire() {
-    if(this.color === 'purple') {
+    if(this.color === 'purple' || this.color === 'fuchsia') {
       this.rateOfFire = Math.randomInt(150, 350);
     }
     else if(this.color === 'blue') {
@@ -165,9 +186,9 @@ export default class UFO extends Ship {
   alterPath(direction) {
     this.accel.mag = this.acceleration;
     this.accel.dir = direction;
-    if(this.goal !== '' && this.color === 'orange') {
+    if(this.goal !== '') {
       //This is so it doesn't get pushed to zero by dodging a lot
-      this.clock = 60;
+      this.setClock();
       this.clock--;
     }
   }
@@ -209,11 +230,24 @@ export default class UFO extends Ship {
     */
   createParticles(numParticles) {
     for(var i = 0; i < numParticles; i++) {
-      var angle = this.velocityDirection + Math.randomBetween(-Math.PI, 0);
+      var angle = this.velocity.dir + Math.randomBetween(-Math.PI, 0);
       var x = this.x - Math.cos(angle) * this.radius;
       var y = this.y + Math.sin(angle) * this.radius;
       //Create new Particle
-      this.particles.push(new Particle(x, y, Math.PI + this.velocityDirection, 0.5, this.color, 30));
+      this.particles.push(new Particle(x, y, Math.PI + this.velocity.dir, 0.70 * this.velocity.mag, this.color, 30));
+    }
+  }
+
+  asteroidParticles(numParticles) {
+    let x = this.asteroid.x;
+    let y = this.asteroid.y;
+    for(let i = 0; i < numParticles; i++) {
+      let angle = Math.randomBetween(0, Math.PI * 2);
+      //Get a poin on the asteroid's surface
+      let dx = x + Math.cos(angle) * this.asteroid.radius;
+      let dy = y - Math.sin(angle) * this.asteroid.radius;
+
+      this.particles.push(new Particle(dx, dy, angle + Math.PI / 6, 2.0, this.color, 20));
     }
   }
 
@@ -224,14 +258,14 @@ export default class UFO extends Ship {
     this.edgeDetection();
     this.updateSpeed();
     super.checkPowerUps();
-    super.updateDirection();
-    if(this.clock < 60) {
+    super.updateVelocity();
+    if(this.clock < this.CLOCK) {
       this.clock--;
       if(this.clock <= 0) {
-        this.clock = 60;
+        this.setClock();
       }
     }
-    if(this.clock === 60 && this.goal !== '') {
+    if(this.clock === this.CLOCK && this.goal !== '') {
       this.goToGoal();
     }
     //Controlling the rate of fire
@@ -256,11 +290,14 @@ export default class UFO extends Ship {
         this.asteroid.velocity.x = this.speed.x;
         this.asteroid.velocity.y = this.speed.y;
         this.orbitAsteroid();
+        this.asteroidParticles(1);
       }
     }
     this.x += this.speed.x;
     this.y += this.speed.y;
-    this.createParticles(1)
+    if(Math.random() > 0.50) {
+      this.createParticles(1);
+    }
     //Particle effect for the thruster
     for(var j = 0; j < this.particles.length; j++) {
       this.particles[j].update();

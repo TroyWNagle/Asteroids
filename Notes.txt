@@ -57,6 +57,7 @@ Things to Do:
     + Particle effect for the Blue UFO while it has an asteroid in its grasp
     + Particles have a strobe effect?
     + Small particle trail for UFOs always? Similar to the player ship but more subtle.
+      -I have a working particle effect for the UFOs
     + Points earned pop up where ever they were earned.
     + Extra life pop ups after killing a Purple UFO
     + Purple & Blue UFOs are pretty dark. Make them brighter colors?
@@ -87,16 +88,25 @@ Things to Do:
       + Determines max Asteroids & UFOs
         + Levels are determined by score milestones?
         + Levels are determined by number of UFOs Killed?
+        - Levels are determined by number of UFOs killed. Currently it is every 5 kills.
       + No hard stops between levels
-        + Maxes for UFOs & asteroids increase and yo keep going
+        + Maxes for UFOs & asteroids increase and you keep going
+        - Max UFOs is locked at 5. Absolute max of asteroids is 15 (before they start breaking)
     + Asteroids
       + Asteroids should always be at max
         + If number of asteroids drops below the max, make a new one
+        - If number of asteroids dip below level requirement, make a new asteroid.
+        - Do the same if the number of asteroids is less than a new level's initial amount.
       + Max Asteroids will scale very slowly, & will probably cap to make it manageable.
+        - Current max for asteroids, before breaking, is 15.
     + Power ups
       + No max
       + Spawn timer will scale with number of powerups in play
         + To keep things from getting too hectic or too boring
+      -Currently, the timer for new power ups increase by the length of the powerups array.
+      -So if there is ever more than 1 power up in play, the spawn time is drastically increased.
     + UFOs
       + Spawn timer will scale with number of UFOs in play & level
         + Higher the level, the lower the scaling
+      - As levels get higher, the faster the UFOs spawn.
+      - Maximum number of UFOs on screen is always 5. Might even be too high.

@@ -18,7 +18,7 @@ export default class Ship {
     //Velocity to determine the magnitude/direction of the ship
     //This is actually acceleration...
     this.accel = {mag: 0.1, dir: 0.0};
-    this.velocityDirection = 0.0;
+    this.velocity = {mag: 0.0, dir: 0.0};
     this.speed = {x: 0.0, y: 0.0};
     this.radius = 15;
     //particles for thruster trail
@@ -90,12 +90,14 @@ export default class Ship {
       //Create some noise on the starting position
       var dx = x + Math.randomBetween(-3, 3);
       var dy = y + Math.randomBetween(-3, 3);
+      //0.0872665 is 5 degrees in radians
+      var angleNoise = this.accel.dir + Math.randomBetween(-0.0872665 * 2, 0.0872665 * 2)
       //Create new Particle
       if(this.boosting && this.boost > 0) {
-        this.particles.push(new Particle(dx, dy, Math.PI + this.accel.dir, 2.0, 'blue', 20));
+        this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 3.0, 'blue', 35));
       }
       else {
-        this.particles.push(new Particle(dx, dy, Math.PI + this.accel.dir, 1.0, 'red', 20));
+        this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 1, 'red', 20));
       }
     }
   }
@@ -111,7 +113,7 @@ export default class Ship {
     }
   }
 
-  updateDirection() {
+  updateVelocity() {
     let mag = Math.sqrt(this.speed.x * this.speed.x + this.speed.y * this.speed.y);
     let angle = Math.acos(this.speed.y / mag);
     if(this.speed.x < 0) {
@@ -120,7 +122,8 @@ export default class Ship {
     if(angle < 0) {
       angle += Math.PI * 2
     }
-    this.velocityDirection = angle;
+    this.velocity.mag = mag;
+    this.velocity.dir = angle;
   }
 
   /** @function update()
@@ -130,7 +133,7 @@ export default class Ship {
     this.edgeDetection();
     this.x += this.speed.x;
     this.y += this.speed.y;
-    this.updateDirection();
+    this.updateVelocity();
     this.checkPowerUps();
     //Controlling the rate of fire
     if(this.reloading) {

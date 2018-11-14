@@ -127,5 +127,37 @@ Game.js:
   + Added variable kills.
     + Keeps track of how many UFOs you have killed.
     + Every 5 you kill, you go up a level.
-  + Level determins number of asteroids & UFO spawn times.
+  + Level determines number of asteroids & UFO spawn times.
     + It gets crazy very quickly at the moment.
+
+11/12/2018
+--------------------------------------------------------------------------------
+Game.js:
+  + Changed the explode functions, for more varied and aggressive explosions.
+  + Changed how much the asteroid constants go up per level. Was 2 * level, now it is just plus level.
+  + Made changes to align with the adjustments with the UFO clocks.
+  + Made changes to accommodate the fuchsia ufo
+
+Particle.js:
+  + Added direction variable for allowing updating speed of particles.
+    + Dynamic speed of particles make the particles seem less stiff and more floaty.
+  + Added an updateSpeed functions, to update x & y speeds of the particle mid flight.
+  + Now speed of particles decay slightly every frame.
+    + -0.05 pixels per frame to be exact.
+
+Ship.js:
+  + Changed velocityDirection back to velocity with mag & dir properties.
+    + This is to allow the velocity magnitude to determine the particle trail speed of the UFOs.
+    +I using it for the player too, but I didn't like how it looked.
+  + Added some noise the starting angle of particles on the thruster trail.
+  + Changed updateDirection to updateVelocity.
+    + It now calculates the magnitude & direction of the ships velocity every frame.
+
+UFO.js:
+  + Added a function called asteroidParticles that gives caught asteroids a particle effect.
+    + The particles just emit off the asteroid, but since the asteroid is always moving, the particles look like they follow the UFO.
+    + But this still works because I just wanted some signifier that the UFO had control of the asteroid.
+  + Made the clock variable more manageable
+  + Added a function called setClock that sets the clock for UFOs of different types.
+  + Added a fuchsia colored UFO that can do everything that the others can.
+    + Fast firing, projectile dodging, asteroid catching, & power up stealing
