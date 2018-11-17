@@ -100,7 +100,7 @@ export default class Ship {
         this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 3.0, 'blue', 35, true));
       }
       else {
-        this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 1, 'red', 20, true));
+        this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 2.0, 'red', 20, true));
       }
     }
   }

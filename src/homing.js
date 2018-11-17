@@ -7,6 +7,8 @@ export default class Homing extends Projectile {
     // 0.0174533 is 1 degree in radians
     this.correction = 0.0174533 * 1.5;
     this.target = null;
+    this.past = [];
+    this.width = 1;
   }
 
   findTarget(targets) {
@@ -67,6 +69,21 @@ export default class Homing extends Projectile {
     }
   }
 
+  storePast() {
+    let point = {x: this.x, y: this.y};
+    this.past.push(point);
+    if(this.past.length > 30) {
+      this.past.splice(0, 1);
+    }
+  }
+
+  alterPast() {
+    this.past.forEach(point => {
+      point.x += Math.randomBetween(-1, 1);
+      point.y += Math.randomBetween(-1, 1);
+    });
+  }
+
   update(targets) {
     if(this.color === 'green') {
       if(targets.length > 0) {
@@ -80,6 +97,24 @@ export default class Homing extends Projectile {
       this.adjustDirection();
       super.initSpeed();
     }
-    super.update(targets)
+    this.storePast();
+    this.x += this.speed.x;
+    this.y += this.speed.y;
+    this.alterPast();
+  }
+
+  render(ctx) {
+    super.render(ctx);
+    ctx.save();
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = this.width;
+    for(let i = 0; i < this.past.length - 1; i++) {
+      ctx.beginPath();
+      ctx.moveTo(this.past[i].x, this.past[i].y);
+      ctx.lineTo(this.past[i + 1].x, this.past[i + 1].y);
+      ctx.stroke();
+      ctx.lineWidth += 0.1;
+    }
+    ctx.restore();
   }
 }

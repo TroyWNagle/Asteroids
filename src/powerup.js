@@ -16,8 +16,8 @@ export default class PowerUp {
 		switch (this.type){
 				//Homing
 				case 1:
-					//15 seconds at 60 fps
-					this.timer = 900;
+					//20 seconds at 60 fps
+					this.timer = 1200;
 					break;
 				//Rapid Fire
 				case 2:

@@ -203,3 +203,8 @@ Particles.js:
     + So now I can set whether or not I want the particles to slow down.
     + Right now, only the boostBar has non-decaying particles.
   + Made all the necessary changes to other classes to accommodate this change.
+
+Homing.js:
+  + Added a past array, to keep track of where it has been for a trail effect.
+  + Added a function to store the past & another to add some noise to the past.
+  - Homing projectiles no longer use particles.

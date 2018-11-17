@@ -21,11 +21,11 @@ export default class Game {
     this.screenSide = screenWidth;
     //Absolutes
     this.MAXUFO = 5;
-    this.MAXASTEROIDS = 10;
+    this.MAXASTEROIDS = 6;
     this.UFOTIME = 500;
     this.POWERTIME = 900;
     //Num Objects
-    this.numAsteroids = 5;
+    this.numAsteroids = 3;
     //Objects/Arrays
     this.ship = new Ship();
     this.ufos = [];
@@ -103,7 +103,7 @@ export default class Game {
     this.respawnTimer = 300;
     this.projectiles = [];
     this.asteroids = [];
-    this.numAsteroids = 5;
+    this.numAsteroids = 3;
     this.createAsteroids();
     this.particles = [];
     //HUD Variables
@@ -648,7 +648,7 @@ export default class Game {
       this.lives++;
       this.createBlip("1 Life");
       this.teleports += this.level;
-      let initAsteroids = 5 + this.level;
+      let initAsteroids = 3 + this.level;
       if(initAsteroids > this.MAXASTEROIDS) {
         initAsteroids = this.MAXASTEROIDS;
       }
@@ -659,7 +659,10 @@ export default class Game {
           this.numAsteroids++;
         }
       }
-      this.constAsteroids = this.numAsteroids;
+      this.constAsteroids = 3 + this.level;
+      if(this.constAsteroids > this.MAXASTEROIDS) {
+        this.constAsteroids = this.MAXASTEROIDS;
+      }
     }
 
     //Determine UFO spawning

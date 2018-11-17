@@ -14,7 +14,6 @@ export default class BoostBar {
 
   createParticles(numParticles) {
     let x = 1 + this.x - this.width / 2;
-    let y = Math.randomBetween(this.y - this.height / 2, this.y + this.height / 2);
     for (let i = 0; i < numParticles; i++) {
       let y = Math.randomBetween(this.y - this.height / 2, this.y + this.height / 2);
       this.particles.push(new Particle(x, y, 0, 5.0, 'green', 75, false));

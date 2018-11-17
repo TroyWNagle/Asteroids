@@ -68,6 +68,7 @@ Things to Do:
       - Added BoostBar class to handle this.
     + Need to display active powerups
     + Homing Projectiles should be unique, it is very difficult to tell what is homing & what isn't.
+      - Gave homing projectiles a line trail instead of a particle trail.
     + Screen Shake? Idk I don't really like screen shake too much.
       + Frame pausing on Explosions? I'm not sure how well the interval will be with that.
       + Or could just go extra crazy with the particle explosions?
