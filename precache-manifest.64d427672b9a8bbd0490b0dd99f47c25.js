@@ -4,15 +4,15 @@ self.__precacheManifest = [
     "url": "/Asteroids/static/js/runtime~main.e8d3366d.js"
   },
   {
-    "revision": "c53b0ec7f71099746bd1",
-    "url": "/Asteroids/static/js/main.c53b0ec7.chunk.js"
+    "revision": "909c2403d81b34d370bd",
+    "url": "/Asteroids/static/js/main.909c2403.chunk.js"
   },
   {
-    "revision": "c53b0ec7f71099746bd1",
+    "revision": "909c2403d81b34d370bd",
     "url": "/Asteroids/static/css/main.498ffa67.chunk.css"
   },
   {
-    "revision": "e319684986ff98866e17563b225a847b",
+    "revision": "7f172729a4c5ac5586cf3725963c788a",
     "url": "/Asteroids/index.html"
   }
 ];
