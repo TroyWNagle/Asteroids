@@ -1,4 +1,5 @@
 import Particle from './particles.js';
+import BoostBar from './boostBar.js';
 
 
 /** @class Ship
@@ -27,10 +28,12 @@ export default class Ship {
     this.MAXBOOST = 120;
     this.boosting = false;
     this.boost = 120;
+    this.boostRecharge = 1;
     this.TOPSPEED = 3.0;
     // 1 = homing, 2 = rapid fire
     this.powerups = {1: false, 2: false, 3: false};
     this.powerupTimers = {1: 0, 2: 0, 3: 0};
+    this.boostGauge = new BoostBar(this.boost, this.MAXBOOST);
   }
 
   /** @function updateSpeed()
@@ -94,10 +97,10 @@ export default class Ship {
       var angleNoise = this.accel.dir + Math.randomBetween(-0.0872665 * 2, 0.0872665 * 2)
       //Create new Particle
       if(this.boosting && this.boost > 0) {
-        this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 3.0, 'blue', 35));
+        this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 3.0, 'blue', 35, true));
       }
       else {
-        this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 1, 'red', 20));
+        this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 1, 'red', 20, true));
       }
     }
   }
@@ -150,7 +153,12 @@ export default class Ship {
     }
 
     if(!this.boosting && this.boost < this.MAXBOOST) {
-      this.boost++;
+      this.boostRecharge *= -1;
+      //Variable makes it so the boost only recharges every other frame.
+      if(this.boostRecharge === 1) {
+        this.boost++;
+        this.boostGauge.boost = this.boost;
+      }
     }
 
     //Particle effect for the thruster
@@ -160,6 +168,7 @@ export default class Ship {
         this.particles.splice(j, 1);
       }
     }
+    this.boostGauge.update();
   }
 
   drawShield(ctx) {
@@ -199,5 +208,6 @@ export default class Ship {
     if(this.powerups[3]) {
       this.drawShield(ctx);
     }
+    this.boostGauge.render(ctx);
   }
 }

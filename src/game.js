@@ -6,6 +6,7 @@ import Homing from './homing.js';
 import Particle from './particles.js';
 import UFO from './ufo.js';
 import PowerUp from './powerup.js';
+import PopUp from './popups.js';
 import './math.js';
 import AudioController from './audiocontroller.js';
 
@@ -16,8 +17,8 @@ export default class Game {
   /** @constructor
     * Game object constructor, no arguement, sets up all the necessities.
     */
-  constructor() {
-    this.screenSide = 1000;
+  constructor(backBuffer, backBufferCanvas, screenContext, screenWidth) {
+    this.screenSide = screenWidth;
     //Absolutes
     this.MAXUFO = 5;
     this.MAXASTEROIDS = 10;
@@ -45,6 +46,7 @@ export default class Game {
     this.highscore = 0;
     this.lives = 3;
     this.level = 1;
+    this.popups = [];
     //Make sure there are never fewer than the inital amount of asteroids
     this.constAsteroids = this.level * this.numAsteroids;
     //controls the teleport function
@@ -61,25 +63,16 @@ export default class Game {
     //Input Map
     this.keyMap = {13: false, 32: false, 37: false, 38: false, 39: false, 65: false, 68: false, 70: false, 87: false, 88: false};
 
-    //HUD
+    /*//HUD
     this.HUDcanvas = document.getElementById('ui');
     this.HUDcanvas.width = this.screenSide;
     this.HUDcanvas.height = 100;
     this.HUDcontext = this.HUDcanvas.getContext('2d');
-    document.body.appendChild(this.HUDcanvas);
+    document.body.appendChild(this.HUDcanvas); */
 
-    //Back Buffer
-    this.backBufferCanvas = document.getElementById("canvas");
-    this.backBufferCanvas.width = this.screenSide;
-    this.backBufferCanvas.height = this.screenSide;
-    this.backBufferContext = this.backBufferCanvas.getContext('2d');
-
-    //Canvas that actually gets put on the screen
-    this.screenBufferCanvas = document.getElementById("canvas");
-    this.screenBufferCanvas.width = this.screenSide;
-    this.screenBufferCanvas.height = this.screenSide;
-    document.body.appendChild(this.screenBufferCanvas);
-    this.screenBufferContext = this.screenBufferCanvas.getContext('2d');
+    this.backBufferContext = backBuffer;
+    this.backBufferCanvas = backBufferCanvas;
+    this.screenBufferContext = screenContext;
 
     //Binders
     this.loop = this.loop.bind(this);
@@ -117,6 +110,7 @@ export default class Game {
     this.score = 0;
     this.lives = 3;
     this.level = 1;
+    this.constAsteroids = this.level * this.numAsteroids;
     //controls the telepor function
     this.teleports = 10;
     this.coolingDown = 50;
@@ -403,7 +397,9 @@ export default class Game {
     this.asteroids.splice(aID, 1);
     this.audioController.trigger('explosion');
     //Smaller asteroids are harder to hit, thus more score
-    this.score += Math.floor(100 / mass);
+    let points = Math.floor(100 / mass);
+    this.popups.push(new PopUp(x, y, points, 'blip'));
+    this.score += points;
     //If it isn't too small
     if(mass >= 15) {
       //random number of pieces the asteroid will break into
@@ -447,7 +443,7 @@ export default class Game {
     if(distance < Math.pow(ship.bufferRadius + asteroid.radius, 2)) {
       let direction = Math.getDirection(asteroid.x, asteroid.y, ship.x, ship.y);
       ship.alterPath(direction);
-      if((ship.color === 'blue' || ship.color === 'fuchsia') && asteroid.radius < ship.critical && ship.asteroid === '') {
+      if((ship.type === 'Hurler' || ship.type === 'Elite') && asteroid.radius < ship.critical && ship.asteroid === '') {
         ship.catchAsteroid(asteroid)
       }
       //Check if UFO is on the verge of crashing
@@ -475,7 +471,7 @@ export default class Game {
       if(Math.random() > 0.6) {
         dir = Math.randomBetween(0, Math.PI * 2);
       }
-      this.particles.push(new Particle(x, y, Math.PI * dir, speed, color, life));
+      this.particles.push(new Particle(x, y, Math.PI * dir, speed, color, life, true));
     }
   }
 
@@ -549,8 +545,10 @@ export default class Game {
     */
   destoryUFO(ufoID) {
     this.score += this.ufos[ufoID].bounty;
+    this.popups.push(new PopUp(this.ufos[ufoID].x, this.ufos[ufoID].y, this.ufos[ufoID].bounty, 'blip'));
     if(this.ufos[ufoID].bounty === 200 || this.ufos[ufoID].bounty === 500) {
       this.lives++;
+      this.createBlip("1 life");
     }
     this.kills++;
     this.ufos.splice(ufoID, 1);
@@ -560,6 +558,33 @@ export default class Game {
   checkHighScore() {
     if(this.score > this.highscore) {
       this.highscore = this.score;
+    }
+  }
+
+  createPowerUpBlip(type) {
+    let string = '';
+    switch (type) {
+      case 1:
+        string = "Homing Lasers";
+        break;
+      case 2:
+        string = "Rapid Fire";
+        break;
+      case 3:
+        string = "Force Field";
+        break;
+      default:
+
+    }
+    this.createBlip(string);
+  }
+
+  createBlip(string) {
+    if(this.ship.y > 500) {
+      this.popups.push(new PopUp(this.ship.x, this.ship.y - 50, string, "blip"));
+    }
+    else {
+      this.popups.push(new PopUp(this.ship.x, this.ship.y + 50, string, "blip"));
     }
   }
 
@@ -585,18 +610,24 @@ export default class Game {
     * Handles updating all object and variables, comments laced throughout
     */
   update() {
+    //Update PopUps
+    for(let i = 0; i < this.popups.length; i++) {
+      if(this.popups[i].update()) {
+        this.popups.splice(i, 1);
+      }
+    }
     //Update Ship
     this.ship.update();
     //Update UFO if applicable
     this.ufos.forEach(ufo => {
-      if((ufo.color === 'orange' || ufo.color === 'fuchsia') && ufo.goal === '') {
+      if((ufo.type === 'Theif' || ufo.type === 'Elite') && ufo.goal === '') {
         if(this.powerups.length > 0) {
           let random = Math.randomInt(0, this.powerups.length - 1)
           ufo.goal = {x: this.powerups[random].pos.x, y: this.powerups[random].pos.y}
         }
       }
       ufo.update();
-      if(ufo.asteroid !== '') {
+      if(ufo.asteroid !== '' && !this.respawning) {
         ufo.checkAsteroidAlignment(this.ship);
       }
     });
@@ -612,8 +643,10 @@ export default class Game {
     //Update Level if no more asteroids
     if(this.kills !== 0 && this.kills % (this.level * 5) === 0) {
       this.level++;
+      this.popups.push(new PopUp(450, 500, "Level " + this.level, 'annoucement'));
       //You Will Probably Need These
       this.lives++;
+      this.createBlip("1 Life");
       this.teleports += this.level;
       let initAsteroids = 5 + this.level;
       if(initAsteroids > this.MAXASTEROIDS) {
@@ -694,6 +727,7 @@ export default class Game {
         this.explode(this.ship.x, this.ship.y, this.ship.color);
         this.ship.powerups[this.powerups[i].type] = true;
         this.ship.powerupTimers[this.powerups[i].type] += this.powerups[i].timer;
+        this.createPowerUpBlip(this.powerups[i].type);
         if(this.powerups[i].type === 2) {
           this.ship.reloading = false;
           this.ship.rateOfFire = this.ship.RATE / 2
@@ -740,10 +774,10 @@ export default class Game {
       for(let i = 0; i < this.ufos.length; i++) {
         for(let j = i + 1; j < this.ufos.length; j++) {
           if(Math.circleCollisionDetection(this.ufos[i].x, this.ufos[i].y, this.ufos[i].critical, this.ufos[j].x, this.ufos[j].y, this.ufos[j].critical)) {
-            if((this.ufos[i].color === 'purple' || this.ufos[i].color === 'fuchsia') && !this.ufos[i].reloading) {
+            if((this.ufos[i].type === 'Dodger' || this.ufos[i].type === 'Elite') && !this.ufos[i].reloading) {
               this.ufoProjectile(this.ufos[i], this.ufos[j].x, this.ufos[j].y);
             }
-            if((this.ufos[j].color === 'purple' || this.ufos[i].color === 'fuchsia') && !this.ufos[i].reloading) {
+            if((this.ufos[j].type === 'Dodger' || this.ufos[i].type === 'Elite') && !this.ufos[i].reloading) {
               this.ufoProjectile(this.ufos[j], this.ufos[i].x, this.ufos[i].y);
             }
             //Get the direction from the first ufo to the second.
@@ -786,7 +820,7 @@ export default class Game {
         break;
       }
       for(let j = 0; j < this.ufos.length; j ++) {
-        if((this.ufos[j].color === 'purple' || this.ufos[j].color === 'fuchsia') && this.ufos[j].clock === this.ufos[j].CLOCK) {
+        if((this.ufos[j].type === 'Dodger' || this.ufos[j].type === 'Elite') && this.ufos[j].clock === this.ufos[j].CLOCK) {
           if(this.projectileDodger(this.ufos[j], this.projectiles[i])) {
             if(this.ufos[j].powerups[3]) {
               this.explode(this.ufos[j].x, this.ufos[j].y, 'magenta');
@@ -837,16 +871,18 @@ export default class Game {
         this.ship.accel.dir -= Math.PI * 2;
       }
     }
-    //W or Up Arrow
     if((this.respawnTimer <= 150 || !this.respawning)) {
       this.ship.boosting = false;
+      //Enter
       if(this.keyMap[13] && this.ship.boost >= 0) {
         this.ship.boosting = true;
         this.ship.boost--;
+        this.ship.boostGauge.boost = this.ship.boost;
         this.ship.updateSpeed(this.ship.accel.mag * 3);
         let numParticles = Math.floor(Math.randomBetween(4, 8));
         this.ship.createParticles(numParticles);
       }
+      //W or Up Arrow
       else if ((this.keyMap[87] || this.keyMap[38])) {
         this.ship.updateSpeed(this.ship.accel.mag);
         let numParticles = Math.floor(Math.randomBetween(1, 4));
@@ -865,12 +901,14 @@ export default class Game {
       this.coolingDown--;
     }
     //UFOs firing
-    for(let i = 0; i < this.ufos.length; i++) {
-      let ufo = this.ufos[i];
-      ufo.rateOfFire--;
-      if(ufo.rateOfFire <= 0) {
-        this.ufoProjectile(ufo, this.ship.x, this.ship.y);
-        ufo.setRateOfFire();
+    if(!this.respawning) {
+      for(let i = 0; i < this.ufos.length; i++) {
+        let ufo = this.ufos[i];
+        ufo.rateOfFire--;
+        if(ufo.rateOfFire <= 0) {
+          this.ufoProjectile(ufo, this.ship.x, this.ship.y);
+          ufo.setRateOfFire();
+        }
       }
     }
 
@@ -917,7 +955,7 @@ export default class Game {
     this.backBufferContext.font = '50px Times New Roman';
     //Refresh canvas
     this.backBufferContext.fillRect(0,0, this.screenSide, this.screenSide);
-    this.drawHUD();
+    //this.drawHUD();
     //Display respawning if needed
     if(this.respawning && !this.gameOver) {
       this.backBufferContext.save();
@@ -947,6 +985,9 @@ export default class Game {
     //draw particles
     this.particles.forEach(particle => {
       particle.render(this.backBufferContext);
+    });
+    this.popups.forEach(popup => {
+      popup.render(this.backBufferContext);
     });
     //Bit blit the back buffer onto the screen
     this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);

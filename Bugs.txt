@@ -9,7 +9,12 @@ UFOs / Asteroids:
  + Asteroids caught by UFOs phase through each other...
   + Not really sure how to approach fixing that.
   + Will be pretty rare in an actual setting, but still.
-
+  - Haven't seen this bug in quite some times, not sure if I indirectly fixed it or not.
+ + UFOs catching an asteroid near the edge of the screen is problematic.
+ + Since the asteroids want to wrap around, they go haywire.
+  + Possible solutions:
+    + Restrict the UFOs from catching the asteroids near the edge of the screen.
+    + Make the UFO let go of the asteroid if that happens, simple distance check.
 --------------------------------------------------------------------------
 Fixed Bugs
 

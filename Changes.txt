@@ -136,7 +136,8 @@ Game.js:
   + Changed the explode functions, for more varied and aggressive explosions.
   + Changed how much the asteroid constants go up per level. Was 2 * level, now it is just plus level.
   + Made changes to align with the adjustments with the UFO clocks.
-  + Made changes to accommodate the fuchsia ufo
+  + Made changes to accommodate the fuchsia UFO
+  + Added checks that make sure UFOs don't fire or throw asteroids while the player is respawning.
 
 Particle.js:
   + Added direction variable for allowing updating speed of particles.
@@ -161,3 +162,44 @@ UFO.js:
   + Added a function called setClock that sets the clock for UFOs of different types.
   + Added a fuchsia colored UFO that can do everything that the others can.
     + Fast firing, projectile dodging, asteroid catching, & power up stealing
+
+11/14/2018
+--------------------------------------------------------------------------------
+Index.js:
+  + Added the start of a menu
+    + Only has the start button, and you can only press enter, but it does transition to starting the game well.
+    + Start & Control buttons working
+    +Right now only keyboard inputs work.
+  + Start button now passes the canvases needed for the game to render properly.
+
+Index.html:
+  - Got rid of ui canvas element
+    + Won't need it & it is very ugly.
+
+Game.js:
+  -Removed the U.I. canvas
+  + Made changes to accommodate the menu passing in the canvases.
+  + Made changes to accommodate the new UFO type property.
+  + Made changes to accommodate the boostBar.
+
+UFO.js:
+  + Added a type property
+    + So I can change the colors of the UFOs more easily.
+
+Popup.js:
+  + New Class
+    + Handles displaying of small things throughout the screen to give the player feedback.
+    + Things like score from destroying things, extra life, picking up power ups, & Level increases
+
+BoostBar.js:
+  + New Class
+    + Handles the visual representation of the player's boost.
+
+Ship.js:
+  + Made minor adjustments to allow help the boostBar.
+
+Particles.js:
+  + Added a property decay;
+    + So now I can set whether or not I want the particles to slow down.
+    + Right now, only the boostBar has non-decaying particles.
+  + Made all the necessary changes to other classes to accommodate this change.

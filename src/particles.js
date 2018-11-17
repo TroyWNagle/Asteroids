@@ -11,17 +11,16 @@ export default class Particle {
     * @param string color - color of the particle
     * @param int life - how many iterations the particle will last for
     */
-  constructor(x, y, direction, speed, color, life) {
-    this.startX = x;
-    this.startY = y;
+  constructor(x, y, direction, speed, color, life, decay) {
     this.x = x;
     this.y = y;
     this.life = life;
+    this.decay = decay
     this.color = color;
     this.alpha = 1.0;
     this.values = {high: 1.0, low: 0.7};
     this.clock = 10;
-    this.speed = Math.randomInt(0, speed);
+    this.speed = Math.randomInt(1, speed);
     this.direction = direction;
     this.speedX = Math.cos(direction) * this.speed;
     this.speedY = -Math.sin(direction) * this.speed;
@@ -51,7 +50,7 @@ export default class Particle {
       this.changeAlpha();
     }
     this.life--;
-    if(this.speed > 0) {
+    if(this.decay && this.speed > 0) {
       this.speed -= 0.05;
       this.updateSpeed();
     }

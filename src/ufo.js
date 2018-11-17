@@ -25,6 +25,7 @@ export default class UFO extends Ship {
     //When the Ship is on the verge of crashing into an asteroid, it shoots to destory it
     this.critical = 40;
     this.color = "";
+    this.type = "";
     this.clock = 0;
     this.bounty = 0;
     this.setColor();
@@ -45,30 +46,34 @@ export default class UFO extends Ship {
     //Spawn UFO and reset Timer
     if(random > 90) {
       color = 'fuchsia';
+      this.type = "Elite";
       this.bounty = 500;
     }
     else if(random > 85) {
       color = 'purple';
+      this.type = "Dodger";
       this.bounty = 200;
     }
     else if (random > 45) {
       color = 'blue';
+      this.type = "Hurler";
       this.bounty = 150;
     }
     else {
       color = 'orange';
       this.bounty = 100;
+      this.type = "Theif";
     }
     this.color = color;
   }
 
   setClock() {
     this.CLOCK = 0;
-    if(this.color === 'purple' || this.color === 'fuchsia') {
+    if(this.type === 'Dodger' || this.color === 'Elite') {
       this.CLOCK = 5;
       this.clock = this.CLOCK;
     }
-    else if(this.color === 'blue') {
+    else if(this.type === 'Hurler') {
       this.CLOCK = 30;
       this.clock = this.CLOCK;
     }
@@ -79,10 +84,10 @@ export default class UFO extends Ship {
   }
 
   setRateOfFire() {
-    if(this.color === 'purple' || this.color === 'fuchsia') {
+    if(this.type === 'Dodger' || this.type === 'Elite') {
       this.rateOfFire = Math.randomInt(150, 350);
     }
-    else if(this.color === 'blue') {
+    else if(this.type === 'Hurler') {
       this.rateOfFire = Math.randomInt(300, 700);
     }
     else {
@@ -234,7 +239,7 @@ export default class UFO extends Ship {
       var x = this.x - Math.cos(angle) * this.radius;
       var y = this.y + Math.sin(angle) * this.radius;
       //Create new Particle
-      this.particles.push(new Particle(x, y, Math.PI + this.velocity.dir, 0.70 * this.velocity.mag, this.color, 30));
+      this.particles.push(new Particle(x, y, Math.PI + this.velocity.dir, 0.70 * this.velocity.mag, this.color, 30, true));
     }
   }
 
@@ -247,7 +252,7 @@ export default class UFO extends Ship {
       let dx = x + Math.cos(angle) * this.asteroid.radius;
       let dy = y - Math.sin(angle) * this.asteroid.radius;
 
-      this.particles.push(new Particle(dx, dy, angle + Math.PI / 6, 2.0, this.color, 20));
+      this.particles.push(new Particle(dx, dy, angle + Math.PI / 6, 2.0, this.color, 20, true));
     }
   }
 

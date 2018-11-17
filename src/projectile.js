@@ -31,7 +31,7 @@ export default class Projectile {
       //Spread the particles over the projectile
       var dx = x + Math.randomBetween(-this.radius, this.radius);
       var dy = y + Math.randomBetween(-this.radius, this.radius);
-      this.particles.push(new Particle(dx, dy, Math.PI * this.velocity.dir, 1.0, this.color, 10));
+      this.particles.push(new Particle(dx, dy, Math.PI * this.velocity.dir, 1.0, this.color, 10, true));
     }
   }
 

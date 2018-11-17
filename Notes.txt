@@ -55,22 +55,28 @@ Things to Do:
 
   Needed/Changed visual effects:
     + Particle effect for the Blue UFO while it has an asteroid in its grasp
+      - Blue & Fuchsia UFOs have particle effects on their carries asteroids.
     + Particles have a strobe effect?
     + Small particle trail for UFOs always? Similar to the player ship but more subtle.
       -I have a working particle effect for the UFOs
     + Points earned pop up where ever they were earned.
+      - Added PopUp class to handle this, and it works.
     + Extra life pop ups after killing a Purple UFO
+      - Added PopUp class to handle this, and it works.
     + Purple & Blue UFOs are pretty dark. Make them brighter colors?
     + Need a dynamic boost gauge
+      - Added BoostBar class to handle this.
     + Need to display active powerups
     + Homing Projectiles should be unique, it is very difficult to tell what is homing & what isn't.
     + Screen Shake? Idk I don't really like screen shake too much.
       + Frame pausing on Explosions? I'm not sure how well the interval will be with that.
       + Or could just go extra crazy with the particle explosions?
+        - Particle explosions are more energetic.
 
   Menu:
     + Start
       + immediately throws you into a game, maybe a count down?
+      -Working Start button, just immediately starts.
     + Options
       + Mostly Sound
       + Change control bindings?
@@ -82,6 +88,7 @@ Things to Do:
       + Space to shoot
       + Enter to boost
       + F to teleport
+      - Controls buttons works, & displays all the controls properly.
 
   Structural Changes:
     + Levels
