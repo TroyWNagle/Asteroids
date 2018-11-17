@@ -65,7 +65,7 @@ export default class Asteroid {
   createSurface() {
     var segments = 24;
     //15 degree increments
-    var angle = Math.PI * 2 / segments;
+    var angle = Math.tau / segments;
     var randomRadius = this.radius;
     var x;
     var y;

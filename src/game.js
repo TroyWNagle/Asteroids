@@ -371,7 +371,7 @@ export default class Game {
   projectileDodger(ufo, projectile) {
     var distance = Math.getDistance(ufo.x, ufo.y, projectile.x, projectile.y);
     if(distance < (ufo.bufferRadius * 2 + projectile.radius)) {
-      var direction = Math.getDirection(projectile.x, projectile.y, ufo.x, ufo.y);
+      var direction = Math.getDir(distance, projectile.x, projectile.y, ufo.x, ufo.y);
       ufo.alterPath(direction);
       ufo.setClock();
       ufo.clock--;
@@ -408,9 +408,9 @@ export default class Game {
       this.numAsteroids += random - 1;
       mass /= random;
       //Random direction
-      var direction = Math.randomBetween(0, 2 * Math.PI);
+      var direction = Math.randomBetween(0, Math.tau);
       //Uniform distribution
-      var angleChange = 2 * Math.PI / random;
+      var angleChange = Math.tau / random;
       for(var i = 0; i < random; i++) {
         //Since mass is also the radius
         var newX = x + Math.cos(direction) * mass;
@@ -441,7 +441,7 @@ export default class Game {
       return;
     }
     if(distance < Math.pow(ship.bufferRadius + asteroid.radius, 2)) {
-      let direction = Math.getDirection(asteroid.x, asteroid.y, ship.x, ship.y);
+      let direction = Math.getDir(distance, asteroid.x, asteroid.y, ship.x, ship.y);
       ship.alterPath(direction);
       if((ship.type === 'Hurler' || ship.type === 'Elite') && asteroid.radius < ship.critical && ship.asteroid === '') {
         ship.catchAsteroid(asteroid)
@@ -464,14 +464,14 @@ export default class Game {
     */
   explode(x, y, color) {
     var numParticles = Math.randomInt(30, 70);
-    var dir = Math.randomBetween(0, Math.PI * 2);
+    var dir = Math.randomBetween(0, Math.tau);
     var speed = Math.randomInt(3,5);
     var life = Math.randomInt(30, 40);
     for(var i = 0; i < numParticles; i ++) {
       if(Math.random() > 0.6) {
-        dir = Math.randomBetween(0, Math.PI * 2);
+        dir = Math.randomBetween(0, Math.tau);
       }
-      this.particles.push(new Particle(x, y, Math.PI * dir, speed, color, life, true));
+      this.particles.push(new Particle(x, y, Math.PI + dir, speed, color, life, true));
     }
   }
 
@@ -860,15 +860,15 @@ export default class Game {
     //A or Left Arrow
     if(this.keyMap[65] || this.keyMap[37]){
       this.ship.accel.dir -= 0.07;
-      if(this.ship.accel.dir <= -Math.PI * 2) {
-        this.ship.accel.dir += Math.PI * 2;
+      if(this.ship.accel.dir <= -Math.tau) {
+        this.ship.accel.dir += Math.tau;
       }
     }
     //D or Right Arrow
     if(this.keyMap[68] || this.keyMap[39]) {
       this.ship.accel.dir += 0.07;
-      if(this.ship.accel.dir >= Math.PI * 2) {
-        this.ship.accel.dir -= Math.PI * 2;
+      if(this.ship.accel.dir >= Math.tau) {
+        this.ship.accel.dir -= Math.tau;
       }
     }
     if((this.respawnTimer <= 150 || !this.respawning)) {

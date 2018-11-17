@@ -42,7 +42,7 @@ export default class Homing extends Projectile {
       direction *= -1
     }
     if( direction < 0) {
-      direction += Math.PI * 2
+      direction += Math.tau
     }
     return direction;
   }
@@ -50,14 +50,14 @@ export default class Homing extends Projectile {
   adjustDirection() {
     let direction = this.findDirection(this.target);
     if(this.velocity.dir < 0) {
-      this.velocity.dir += Math.PI * 2
+      this.velocity.dir += Math.tau
     }
     let delta = this.velocity.dir - direction
     if(delta > Math.PI) {
-      delta -= Math.PI * 2
+      delta -= Math.tau
     }
     if(delta < -Math.PI) {
-      delta += Math.PI * 2
+      delta += Math.tau
     }
     if(delta > 0) {
       this.velocity.dir -= this.correction;

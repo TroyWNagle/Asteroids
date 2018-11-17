@@ -10,7 +10,7 @@ export default class Projectile {
     this.radius = 3.5;
     this.color = color;
     if(direction < 0) {
-      direction += Math.PI * 2
+      direction += Math.tau;
     }
     this.velocity = {mag: 5.0, dir: direction};
     this.speed = {x: 0.0, y: 0.0};
@@ -78,7 +78,7 @@ export default class Projectile {
     ctx.save();
     ctx.strokeStyle = this.color;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, this.radius, 0, Math.tau);
     ctx.closePath();
     ctx.stroke();
     ctx.restore();

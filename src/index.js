@@ -62,6 +62,7 @@ export default class Menu {
 			case "start":
 				new Game(this.backBufferContext, this.backBufferCanvas, this.screenBufferContext, this.screenWidth);
 				this.gameState = "game";
+				clearInterval(this.interval);
 				break;
 			case "controls":
 				this.gameState = "controls";

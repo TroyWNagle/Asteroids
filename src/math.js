@@ -1,6 +1,5 @@
 //Custom math functions library
-
-
+Math.tau = Math.PI * 2;
 /** @function Math.randomBetween
   * Math prototype function built to easily create ranom floats
   * @param {float} min - the lowest number you want
@@ -43,7 +42,22 @@ Math.getDirection = function(x, y, x2, y2) {
     direction *= -1;
   }
   if( direction < 0) {
-    direction += Math.PI * 2
+    direction += Math.tau;
+  }
+  return direction;
+};
+
+Math.getDir = function(dist, x, y , x2, y2) {
+  //Get relative Distances
+  let dx = x - x2;
+  let dy = y - y2;
+  let direction = Math.acos(dy / dist);
+
+  if(dx > 0) {
+    direction *= -1;
+  }
+  if(direction < 0) {
+    direction += Math.tau;
   }
   return direction;
 };

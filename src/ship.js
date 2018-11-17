@@ -123,7 +123,7 @@ export default class Ship {
       angle *= -1;
     }
     if(angle < 0) {
-      angle += Math.PI * 2
+      angle += Math.tau
     }
     this.velocity.mag = mag;
     this.velocity.dir = angle;
@@ -176,7 +176,7 @@ export default class Ship {
     ctx.fillStyle = 'magenta';
     ctx.globalAlpha = 0.1;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 1.3, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, this.radius * 1.3, 0, Math.tau);
     ctx.closePath();
     ctx.fill();
     ctx.restore();

@@ -74,7 +74,7 @@ export default class PowerUp {
    ctx.strokeStyle = this.color;
    ctx.translate(this.pos.x, this.pos.y);
    ctx.beginPath();
-   ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+   ctx.arc(0, 0, this.radius, 0, Math.tau);
    ctx.closePath();
    ctx.stroke();
 	 ctx.beginPath();

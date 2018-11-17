@@ -65,7 +65,7 @@ export default class Particle {
     ctx.fillStyle = this.color;
     ctx.globalAlpha = this.alpha;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, 1, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, 1, 0, Math.tau);
     ctx.closePath();
     ctx.fill();
     ctx.restore();

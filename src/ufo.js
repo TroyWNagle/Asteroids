@@ -180,9 +180,9 @@ export default class UFO extends Ship {
   }
 
   goToGoal() {
-    this.accel.dir = Math.getDirection(this.x, this.y, this.goal.x, this.goal.y);
-    this.accel.mag = this.acceleration;
     let distance = Math.getDistance(this.x, this.y, this.goal.x, this.goal.y);
+    this.accel.dir = Math.getDir(distance, this.x, this.y, this.goal.x, this.goal.y);
+    this.accel.mag = this.acceleration;
     if(distance < this.radius) {
       this.goal = '';
     }
@@ -205,8 +205,8 @@ export default class UFO extends Ship {
   }
 
   orbitAsteroid() {
-    let direction = Math.getDirection(this.x, this.y, this.asteroid.x, this.asteroid.y);
-    let distance = Math.getDistance(this.x, this.y, this.asteroid.x, this.asteroid.y)
+    let distance = Math.getDistance(this.x, this.y, this.asteroid.x, this.asteroid.y);
+    let direction = Math.getDir(distance, this.x, this.y, this.asteroid.x, this.asteroid.y);
     let delta = 0.02;
     let x = this.x + Math.sin(direction + delta) * distance;
     let y = this.y - Math.cos(direction + delta) * distance;
@@ -247,7 +247,7 @@ export default class UFO extends Ship {
     let x = this.asteroid.x;
     let y = this.asteroid.y;
     for(let i = 0; i < numParticles; i++) {
-      let angle = Math.randomBetween(0, Math.PI * 2);
+      let angle = Math.randomBetween(0, Math.tau);
       //Get a poin on the asteroid's surface
       let dx = x + Math.cos(angle) * this.asteroid.radius;
       let dy = y - Math.sin(angle) * this.asteroid.radius;
@@ -321,11 +321,11 @@ export default class UFO extends Ship {
     ctx.translate(this.x, this.y);
     ctx.rotate(this.rotation);
     ctx.beginPath();
-    ctx.arc(0, 0, this.innerRadius, 0, Math.PI * 2);
+    ctx.arc(0, 0, this.innerRadius, 0, Math.tau);
     ctx.closePath();
     ctx.stroke();
     ctx.beginPath();
-    ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+    ctx.arc(0, 0, this.radius, 0, Math.tau);
     ctx.closePath();
     ctx.stroke();
     this.lineSegments.forEach(segment => {
