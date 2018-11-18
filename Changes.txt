@@ -208,3 +208,6 @@ Homing.js:
   + Added a past array, to keep track of where it has been for a trail effect.
   + Added a function to store the past & another to add some noise to the past.
   - Homing projectiles no longer use particles.
+
+11/23/2018
+--------------------------------------------------------------------------------

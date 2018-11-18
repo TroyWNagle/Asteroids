@@ -7,6 +7,7 @@ import Particle from './particles.js';
 import UFO from './ufo.js';
 import PowerUp from './powerup.js';
 import PopUp from './popups.js';
+import HUDObject from './hud.js';
 import './math.js';
 import AudioController from './audiocontroller.js';
 
@@ -47,6 +48,8 @@ export default class Game {
     this.lives = 3;
     this.level = 1;
     this.popups = [];
+    this.hudObjects = {score: '', lives: '', level: ''};
+    this.initHUD();
     //Make sure there are never fewer than the inital amount of asteroids
     this.constAsteroids = this.level * this.numAsteroids;
     //controls the teleport function
@@ -149,6 +152,12 @@ export default class Game {
     event.preventDefault();
     //Update the key map
     this.keyMap[event.keyCode] = false;
+  }
+
+  initHUD() {
+    this.hudObjects.score = new HUDObject(this.screenSide * 0.45, this.screenSide * 0.05, 'Score: ', this.score);
+    this.hudObjects.lives = new HUDObject(this.screenSide * 0.03, this.screenSide * 0.97, 'Lives: ', this.lives);
+    this.hudObjects.level = new HUDObject(this.screenSide * 0.87, this.screenSide * 0.97, 'Level: ', this.level);
   }
 
   /** @function
@@ -382,6 +391,11 @@ export default class Game {
     return false;
   }
 
+  updateScore(amount) {
+    this.score += amount;
+    this.hudObjects.score.info = this.score;
+  }
+
   /** @function handleAsteriodExplosion()
     * function to handles asteroids exploding from a projectile
     * @param int aID - index of the asteroid to be exploded
@@ -399,7 +413,7 @@ export default class Game {
     //Smaller asteroids are harder to hit, thus more score
     let points = Math.floor(100 / mass);
     this.popups.push(new PopUp(x, y, points, 'blip'));
-    this.score += points;
+    this.updateScore(points);
     //If it isn't too small
     if(mass >= 15) {
       //random number of pieces the asteroid will break into
@@ -529,6 +543,7 @@ export default class Game {
   respawn() {
     this.respawning = true;
     this.lives--;
+    this.hudObjects.lives.info = this.lives;
     if(this.lives >= 0) {
       this.ship = new Ship();
     }
@@ -544,10 +559,11 @@ export default class Game {
     * handles the ufo getting destroyed;
     */
   destoryUFO(ufoID) {
-    this.score += this.ufos[ufoID].bounty;
+    this.updateScore(this.ufos[ufoID].bounty);
     this.popups.push(new PopUp(this.ufos[ufoID].x, this.ufos[ufoID].y, this.ufos[ufoID].bounty, 'blip'));
     if(this.ufos[ufoID].bounty === 500) {
       this.lives++;
+      this.hudObjects.lives.info = this.lives;
       this.createBlip("1 life");
     }
     this.kills++;
@@ -643,9 +659,11 @@ export default class Game {
     //Update Level if no more asteroids
     if(this.kills !== 0 && this.kills % (test) === 0) {
       this.level++;
+      this.hudObjects.level.info = this.level;
       this.popups.push(new PopUp(450, 500, "Level " + this.level, 'annoucement'));
       //You Will Probably Need These
       this.lives++;
+      this.hudObjects.lives.info = this.lives;
       this.createBlip("1 Life");
       this.teleports += this.level;
       let initAsteroids = 3 + this.level;
@@ -731,6 +749,12 @@ export default class Game {
       if(Math.circleCollisionDetection(this.ship.x, this.ship.y, this.ship.radius, this.powerups[i].pos.x, this.powerups[i].pos.y, this.powerups[i].radius)) {
         this.explode(this.ship.x, this.ship.y, this.ship.color);
         this.ship.powerups[this.powerups[i].type] = true;
+        if(this.ship.powerupTimers[this.powerups[i].type] > 0) {
+          this.ship.updatePowerUpDisplay(this.powerups[i].type, this.powerups[i].timer);
+        }
+        else {
+          this.ship.createPowerUpDisplay(this.powerups[i].type, this.powerups[i].timer);
+        }
         this.ship.powerupTimers[this.powerups[i].type] += this.powerups[i].timer;
         this.createPowerUpBlip(this.powerups[i].type);
         if(this.powerups[i].type === 2) {
@@ -994,6 +1018,10 @@ export default class Game {
     this.popups.forEach(popup => {
       popup.render(this.backBufferContext);
     });
+    this.hudObjects.score.render(this.backBufferContext);
+    this.hudObjects.lives.render(this.backBufferContext);
+    this.hudObjects.level.render(this.backBufferContext);
+
     //Bit blit the back buffer onto the screen
     this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
   }

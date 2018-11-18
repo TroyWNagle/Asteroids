@@ -1,5 +1,6 @@
 import Particle from './particles.js';
 import BoostBar from './boostBar.js';
+import PowerUpDisplay from './powerUpTimer.js';
 
 
 /** @class Ship
@@ -33,6 +34,7 @@ export default class Ship {
     // 1 = homing, 2 = rapid fire
     this.powerups = {1: false, 2: false, 3: false};
     this.powerupTimers = {1: 0, 2: 0, 3: 0};
+    this.powerUpDisplays = {1: '', 2: '', 3: ''};
     this.boostGauge = new BoostBar(this.boost, this.MAXBOOST);
   }
 
@@ -106,11 +108,13 @@ export default class Ship {
   }
 
   checkPowerUps() {
-    for(let i = 1; i <= 2; i++) {
+    for(let i = 1; i <= 3; i++) {
       if(this.powerups[i]) {
         this.powerupTimers[i]--;
+        this.powerUpDisplays[i].timer--;
         if(this.powerupTimers[i] <= 0) {
           this.powerups[i] = false;
+          this.powerUpDisplays[i] = '';
         }
       }
     }
@@ -182,11 +186,32 @@ export default class Ship {
     ctx.restore();
   }
 
+  createPowerUpDisplay(type, timer) {
+    if(type === 1) {
+      this.powerUpDisplays[type] = new PowerUpDisplay(5, 1000 * 0.40, type, timer);
+    }
+    else if(type === 2) {
+      this.powerUpDisplays[type]= new PowerUpDisplay(5, 1000 * 0.50, type, timer);
+    }
+    else {
+      this.powerUpDisplays[type] = new PowerUpDisplay(5, 1000 * 0.60, type, timer);
+    }
+  }
+
+  updatePowerUpDisplay(type, amount) {
+    this.powerUpDisplays[type].timer += amount;
+  }
+
   /** @function render()
     * function to draw the ship and the particles for the thruster trail
     * @param context ctx - the backBufferContext from game.js
     */
   render(ctx) {
+    for(let i = 1; i < 4; i ++) {
+      if(this.powerUpDisplays[i] !== '') {
+        this.powerUpDisplays[i].render(ctx);
+      }
+    }
     ctx.save()
     ctx.strokeStyle = this.color;
     ctx.beginPath();
