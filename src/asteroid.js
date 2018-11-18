@@ -38,7 +38,7 @@ export default class Asteroid {
     */
   initVelocity() {
     //Sets speed of the asteroids, more mass = slower
-    var mag = Math.randomInt(8, 10) / this.mass;
+    let mag = Math.randomInt(8, 10) / this.mass;
     if(this.x < 0) {
       this.velocity.x = Math.randomBetween(1.0, mag);
     }
@@ -63,13 +63,13 @@ export default class Asteroid {
     * function to create some 'noise' on the asteroid's surface
     */
   createSurface() {
-    var segments = 24;
+    let segments = 24;
     //15 degree increments
-    var angle = Math.tau / segments;
-    var randomRadius = this.radius;
-    var x;
-    var y;
-    for(var i = 0; i < segments; i++) {
+    let angle = Math.tau / segments;
+    let randomRadius = this.radius;
+    let x;
+    let y;
+    for(let i = 0; i < segments; i++) {
       if(Math.randomInt(0, 100) > 70) {
         randomRadius = Math.randomBetween(this.radius * 0.80, this.radius);
       }
@@ -84,7 +84,7 @@ export default class Asteroid {
     */
   explodedVelocity() {
     //Sets speed of the asteroids, more mass = slower
-    var mag = Math.randomInt(9, 12) / this.mass;
+    let mag = Math.randomInt(9, 12) / this.mass;
     //Uses the direction given to ensure the asteroids leave the center of the original asteroid
     this.velocity.x = Math.cos(this.direction) * mag;
     this.velocity.y = -Math.sin(this.direction) * mag;
@@ -135,7 +135,7 @@ export default class Asteroid {
     context.beginPath();
     //Draw the noisy surface
     context.moveTo(this.surfacePath[0].x,this.surfacePath[0].y);
-    for(var i = 1; i < this.surfacePath.length; i++) {
+    for(let i = 1; i < this.surfacePath.length; i++) {
       context.lineTo(this.surfacePath[i].x, this.surfacePath[i].y);
     }
     context.closePath();

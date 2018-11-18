@@ -15,24 +15,12 @@ export default class Particle {
     this.x = x;
     this.y = y;
     this.life = life;
-    this.decay = decay
+    this.decay = decay;
     this.color = color;
-    this.alpha = 1.0;
-    this.values = {high: 1.0, low: 0.7};
-    this.clock = 10;
     this.speed = Math.randomInt(1, speed);
     this.direction = direction;
     this.speedX = Math.cos(direction) * this.speed;
     this.speedY = -Math.sin(direction) * this.speed;
-  }
-
-  changeAlpha() {
-    if(this.alpha === this.values.high) {
-      this.alpha = this.values.low;
-    }
-    else {
-      this.alpha = this.values.high;
-    }
   }
 
   updateSpeed() {
@@ -44,11 +32,6 @@ export default class Particle {
     * function to updates the particle if it hasn't hit the decay distance
     */
   update() {
-    this.clock--;
-    if(this.clock <= 0) {
-      this.clock = 10;
-      this.changeAlpha();
-    }
     this.life--;
     if(this.decay && this.speed > 0) {
       this.speed -= 0.05;
@@ -63,7 +46,6 @@ export default class Particle {
   render(ctx) {
     ctx.save();
     ctx.fillStyle = this.color;
-    ctx.globalAlpha = this.alpha;
     ctx.beginPath();
     ctx.arc(this.x, this.y, 1, 0, Math.tau);
     ctx.closePath();

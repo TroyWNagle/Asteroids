@@ -25,12 +25,12 @@ export default class Projectile {
     */
   createParticles(numParticles) {
     //Get the back of the projectile
-    var x = this.x - Math.sin(this.velocity.dir)* this.radius;
-    var y = this.y + Math.cos(this.velocity.dir)* this.radius;
-    for(var i = 0; i < numParticles; i++) {
+    let x = this.x - Math.sin(this.velocity.dir)* this.radius;
+    let y = this.y + Math.cos(this.velocity.dir)* this.radius;
+    for(let i = 0; i < numParticles; i++) {
       //Spread the particles over the projectile
-      var dx = x + Math.randomBetween(-this.radius, this.radius);
-      var dy = y + Math.randomBetween(-this.radius, this.radius);
+      let dx = x + Math.randomBetween(-this.radius, this.radius);
+      let dy = y + Math.randomBetween(-this.radius, this.radius);
       this.particles.push(new Particle(dx, dy, Math.PI * this.velocity.dir, 1.0, this.color, 10, true));
     }
   }
@@ -48,7 +48,7 @@ export default class Projectile {
     */
   edgeDetection() {
     if(this.x + this.radius >= 1000 || this.x - this.radius <= 0 ||
-    this.y + this.radius >= 1000|| this.y - this.radius <= 0) {
+    this.y + this.radius >= 1000 || this.y - this.radius <= 0) {
       return true;
     }
     return false;
@@ -62,9 +62,10 @@ export default class Projectile {
     this.x += this.speed.x;
     this.y += this.speed.y;
     //Particle effect for the trail
-    for(var j = 0; j < this.particles.length; j++) {
+    for(let j = 0; j < this.particles.length; j++) {
       this.particles[j].update();
       if(this.particles[j].life <= 0) {
+        //delete this.particles[j];
         this.particles.splice(j, 1);
       }
     }

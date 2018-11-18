@@ -6,7 +6,9 @@ export default class Menu {
 		this.screenWidth = 1000;
 		this.gameState = 'main menu';
 		this.highlighted = 0;
-		this.buttons = ['start', 'options', 'controls'];
+		this.buttons = [];
+		this.buttonNames = ['start', 'options', 'controls'];
+		this.initButtons();
 
 		//Back Buffer
 		this.backBufferCanvas = document.getElementById("canvas");
@@ -23,10 +25,19 @@ export default class Menu {
 
 		this.render = this.render.bind(this);
 		this.handleKeyDown = this.handleKeyDown.bind(this);
+		this.handleMouseDown = this.handleMouseDown.bind(this);
 		window.onmousedown = this.handleMouseDown;
 		window.onkeydown = this.handleKeyDown;
 
 		this.interval = setInterval(this.render, 50 / 3);
+	}
+
+	initButtons() {
+		let scaleY = 0.30;
+		for(let i = 0; i < 3; i++) {
+			this.buttons.push({x: this.screenWidth * 0.35, y: this.screenWidth * scaleY, width: this.screenWidth * 0.3, height: this.screenWidth * 0.1})
+			scaleY += 0.15;
+		}
 	}
 
 	handleKeyDown(event){
@@ -35,7 +46,7 @@ export default class Menu {
 		if(this.gameState === 'main menu') {
 			//Enter
 			if(event.keyCode === 13) {
-				this.clickButton(this.buttons[this.highlighted]);
+				this.clickButton(this.buttonNames[this.highlighted]);
 			}
 			//W & Up arrow
 			if(event.keyCode === 87 || event.keyCode === 38) {
@@ -57,14 +68,42 @@ export default class Menu {
 		}
 	}
 
+	handleMouseDown(event) {
+		event.preventDefault();
+
+		//Adjust the client click position to the canvas position. Drawing with 1000px / 800px canvas (1000 / 800) = 5 / 4
+		let x = event.clientX * 5 / 4;
+		let y = event.clientY * 5 / 4;
+		if(this.gameState === 'main menu') {
+			for(let i = 0; i < this.buttons.length; i++) {
+				let check = Math.circleRectangleCollision(x, y, 10, this.buttons[i].x, this.buttons[i].y, this.buttons[i].width, this.buttons[i].height);
+				if(check) {
+					this.clickButton(i);
+				}
+			}
+		}
+		else if (this.gameState === 'options') {
+
+		}
+		else if(this.gameState === 'controls') {
+			this.gameState = 'main menu';
+		}
+	}
+
 	clickButton(button) {
 		switch (button) {
 			case "start":
+			case 0:
 				new Game(this.backBufferContext, this.backBufferCanvas, this.screenBufferContext, this.screenWidth);
 				this.gameState = "game";
 				clearInterval(this.interval);
 				break;
+			case "options":
+			case 1:
+
+				break;
 			case "controls":
+			case 2:
 				this.gameState = "controls";
 				break;
 			default:
@@ -81,7 +120,6 @@ export default class Menu {
 
 		this.backBufferContext.save();
 		this.backBufferContext.fillStyle = "blue";
-		let scaleY = 0.30;
 		for(let i = 0; i < this.buttons.length; i++) {
 			if(this.highlighted === i) {
 				this.backBufferContext.strokeStyle = "cyan";
@@ -89,8 +127,7 @@ export default class Menu {
 			else {
 				this.backBufferContext.strokeStyle = "blue";
 			}
-			this.backBufferContext.strokeRect(this.screenWidth * 0.35, this.screenWidth * scaleY, this.screenWidth * 0.3, this.screenWidth * 0.1);
-			scaleY += 0.15;
+			this.backBufferContext.strokeRect(this.buttons[i].x, this.buttons[i].y, this.buttons[i].width, this.buttons[i].height);
 		}
 
 		this.backBufferContext.fillText("Start", this.screenWidth * 0.44, this.screenWidth * 0.37);

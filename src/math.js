@@ -82,8 +82,8 @@ Math.getDistance = function(x, y, x2, y2) {
   * @param {int/float} r2 - radius of object 2
   */
 Math.circleCollisionDetection = function(x1, y1, r1, x2, y2, r2) {
-  var dx = x1 - x2;
-  var dy = y1 - y2;
+  let dx = x1 - x2;
+  let dy = y1 - y2;
   //Quick check to avoid having to square things
   if(dx > r1 + r2 || dy > r1 + r2) {
     return false;

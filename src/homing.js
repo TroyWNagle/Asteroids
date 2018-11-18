@@ -73,6 +73,7 @@ export default class Homing extends Projectile {
     let point = {x: this.x, y: this.y};
     this.past.push(point);
     if(this.past.length > 30) {
+      //delete this.past[0];
       this.past.splice(0, 1);
     }
   }

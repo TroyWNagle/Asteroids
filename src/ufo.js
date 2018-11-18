@@ -41,8 +41,8 @@ export default class UFO extends Ship {
   }
 
   setColor() {
-    var color;
-    var random = Math.randomInt(0, 101);
+    let color;
+    let random = Math.randomInt(0, 101);
     //Spawn UFO and reset Timer
     if(random > 90) {
       color = 'fuchsia';
@@ -102,16 +102,16 @@ export default class UFO extends Ship {
     * handles the creation of endpoints to draw lines on the UFO
     */
   initLineSegments() {
-    var xi;
-    var xf;
-    var yi;
-    var yf;
+    let xi;
+    let xf;
+    let yi;
+    let yf;
     // 60 degress per segment, (PI / 3)
-    var numSegments = 6;
-    for(var i = 0; i < numSegments; i++) {
+    let numSegments = 6;
+    for(let i = 0; i < numSegments; i++) {
       //Calculate various sin and cos values
-      var cos = Math.cos(i * Math.PI / 3);
-      var sin = Math.sin(i * Math.PI / 3);
+      let cos = Math.cos(i * Math.PI / 3);
+      let sin = Math.sin(i * Math.PI / 3);
       //Set x values based on cos * radius values
       xi = cos * this.innerRadius;
       xf = cos * this.radius;
@@ -234,10 +234,10 @@ export default class UFO extends Ship {
     * @param int numParticles - number of particles to be created
     */
   createParticles(numParticles) {
-    for(var i = 0; i < numParticles; i++) {
-      var angle = this.velocity.dir + Math.randomBetween(-Math.PI, 0);
-      var x = this.x - Math.cos(angle) * this.radius;
-      var y = this.y + Math.sin(angle) * this.radius;
+    for(let i = 0; i < numParticles; i++) {
+      let angle = this.velocity.dir + Math.randomBetween(-Math.PI, 0);
+      let x = this.x - Math.cos(angle) * this.radius;
+      let y = this.y + Math.sin(angle) * this.radius;
       //Create new Particle
       this.particles.push(new Particle(x, y, Math.PI + this.velocity.dir, 0.70 * this.velocity.mag, this.color, 30, true));
     }
@@ -256,13 +256,24 @@ export default class UFO extends Ship {
     }
   }
 
+  checkPowerUps() {
+    for(let i = 1; i <= 3; i++) {
+      if(this.powerups[i]) {
+        this.powerupTimers[i]--;
+        if(this.powerupTimers[i] <= 0) {
+          this.powerups[i] = false;
+        }
+      }
+    }
+  }
+
   /** @function update()
     * standard position / speed update function
     */
   update() {
     this.edgeDetection();
     this.updateSpeed();
-    super.checkPowerUps();
+    this.checkPowerUps();
     super.updateVelocity();
     if(this.clock < this.CLOCK) {
       this.clock--;
@@ -304,9 +315,10 @@ export default class UFO extends Ship {
       this.createParticles(1);
     }
     //Particle effect for the thruster
-    for(var j = 0; j < this.particles.length; j++) {
+    for(let j = 0; j < this.particles.length; j++) {
       this.particles[j].update();
       if(this.particles[j].life <= 0) {
+        //delete this.particles[j];
         this.particles.splice(j, 1);
       }
     }

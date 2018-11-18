@@ -47,15 +47,15 @@ export default class PowerUp {
 	}
 
 	initLineSegments() {
-		var xi;
-		var xf;
-		var yi;
-		var yf;
-		var numSegments = 2;
-		for(var i = 0; i < numSegments; i++) {
+		let xi;
+		let xf;
+		let yi;
+		let yf;
+		let numSegments = 2;
+		for(let i = 0; i < numSegments; i++) {
 			//Calculate various sin and cos values
-			var cos = Math.cos(i * Math.PI / 2);
-			var sin = Math.sin(i * Math.PI / 2);
+			let cos = Math.cos(i * Math.PI / 2);
+			let sin = Math.sin(i * Math.PI / 2);
 			//Set x values based on cos * radius values
 			xi = cos * this.radius;
 			xf = -cos * this.radius;

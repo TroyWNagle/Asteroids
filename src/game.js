@@ -165,8 +165,8 @@ export default class Game {
     */
   createProjectile() {
     //Get the coordinates of the tip of the ship, The 1.2 is so you can't run into your own shot immediately
-    var x = this.ship.x + Math.sin(this.ship.accel.dir)* this.ship.radius * 1.2;
-    var y = this.ship.y - Math.cos(this.ship.accel.dir)* this.ship.radius * 1.2;
+    let x = this.ship.x + Math.sin(this.ship.accel.dir)* this.ship.radius * 1.2;
+    let y = this.ship.y - Math.cos(this.ship.accel.dir)* this.ship.radius * 1.2;
     if(this.ship.powerups[1]) {
       this.projectiles.push(new Homing(x, y, this.ship.accel.dir, this.ship.color));
     }
@@ -182,19 +182,19 @@ export default class Game {
     * @param float ty - is the y position of the target
     */
   ufoProjectile(ufo, tx, ty) {
-    var dx = ufo.x - tx;
-    var dy = ufo.y - ty;
+    let dx = ufo.x - tx;
+    let dy = ufo.y - ty;
     //Draw a line to the target
-    var distance = Math.sqrt(dx * dx + dy * dy);
+    let distance = Math.sqrt(dx * dx + dy * dy);
     //Get the direction to the target
-    var direction = Math.acos(dy / distance);
+    let direction = Math.acos(dy / distance);
     //Mirror the angle for the left hand side
     if(dx > 0) {
       direction *= -1;
     }
     //Again, 1.2 is so the ufo doesn't immediately destory itself when it shoots
-    var x = ufo.x + Math.sin(direction)* ufo.radius * 1.2;
-    var y = ufo.y - Math.cos(direction)* ufo.radius * 1.2;
+    let x = ufo.x + Math.sin(direction)* ufo.radius * 1.2;
+    let y = ufo.y - Math.cos(direction)* ufo.radius * 1.2;
     if(ufo.powerups[1]) {
       this.projectiles.push(new Homing(x, y, direction, ufo.color));
     }
@@ -220,17 +220,17 @@ export default class Game {
     */
   addAsteroid(direction) {
     //Variables to establish the particle
-    var x;
-    var y;
-    var radius;
-    var mass;
+    let x;
+    let y;
+    let radius;
+    let mass;
     //Var to control the while loop
-    var currLength = this.asteroids.length;
+    let currLength = this.asteroids.length;
     //Loop that generates random values for the particle and makes sure the space is not already occupied
     while (currLength === this.asteroids.length) {
       //Var to determine if it would have spawned inside something
       var collision = false;
-      var spawnSide = Math.randomInt(1, 5);
+      let spawnSide = Math.randomInt(1, 5);
       mass = Math.randomBetween(10, 75);
       radius = mass;
       //Top
@@ -266,14 +266,14 @@ export default class Game {
   }
 
   addUFO() {
-    var x;
-    var y;
-    var radius = 25;
-    var currLength = this.ufos.length;
+    let x;
+    let y;
+    let radius = 25;
+    let currLength = this.ufos.length;
 
     while(currLength === this.ufos.length) {
-      var collision = false;
-      var spawnSide = Math.randomInt(1, 5);
+      let collision = false;
+      let spawnSide = Math.randomInt(1, 5);
       //Top
       if(spawnSide === 1) {
         x = Math.randomBetween(-2 * radius, 1000 + 2 * radius);
@@ -341,33 +341,33 @@ export default class Game {
     */
   particleCollision(asteroid, otherAsteroid) {
     //Vars to determine the differences in velocities
-    var xVelocityDiff = asteroid.velocity.x - otherAsteroid.velocity.x;
-    var yVelocityDiff = asteroid.velocity.y - otherAsteroid.velocity.y;
+    let xVelocityDiff = asteroid.velocity.x - otherAsteroid.velocity.x;
+    let yVelocityDiff = asteroid.velocity.y - otherAsteroid.velocity.y;
     //Vars to determine the distances between particles
-    var xDist = otherAsteroid.x - asteroid.x;
-    var yDist = otherAsteroid.y - asteroid.y;
+    let xDist = otherAsteroid.x - asteroid.x;
+    let yDist = otherAsteroid.y - asteroid.y;
 
     // Prevent accidental overlap of particles
     if (xVelocityDiff * xDist + yVelocityDiff * yDist >= 0) {
 
         // Grab angle between the two colliding asteroids
-        var angle = -Math.atan2(otherAsteroid.y - asteroid.y, otherAsteroid.x - asteroid.x);
+        let angle = -Math.atan2(otherAsteroid.y - asteroid.y, otherAsteroid.x - asteroid.x);
 
         // Store mass in var for better readability in collision equation
-        var m1 = asteroid.mass;
-        var m2 = otherAsteroid.mass;
+        let m1 = asteroid.mass;
+        let m2 = otherAsteroid.mass;
 
         // Velocity before equation
-        var u1 = this.rotate(asteroid.velocity, angle);
-        var u2 = this.rotate(otherAsteroid.velocity, angle);
+        let u1 = this.rotate(asteroid.velocity, angle);
+        let u2 = this.rotate(otherAsteroid.velocity, angle);
 
         // Velocity after 1d collision equation
-        var v1 = { x: (u1.x * (m1 - m2) + 2 * m2 * u2.x) / (m1 + m2), y: u1.y };
-        var v2 = { x: (u2.x * (m2 - m1) + 2 * m1 * u1.x)/ (m1 + m2), y: u2.y };
+        let v1 = { x: (u1.x * (m1 - m2) + 2 * m2 * u2.x) / (m1 + m2), y: u1.y };
+        let v2 = { x: (u2.x * (m2 - m1) + 2 * m1 * u1.x)/ (m1 + m2), y: u2.y };
 
         // Final velocity after rotating axis back to original location
-        var vFinal1 = this.rotate(v1, -angle);
-        var vFinal2 = this.rotate(v2, -angle);
+        let vFinal1 = this.rotate(v1, -angle);
+        let vFinal2 = this.rotate(v2, -angle);
 
         // Swap particle velocities for realistic bounce effect
         asteroid.velocity.x = vFinal1.x;
@@ -378,9 +378,9 @@ export default class Game {
   }
 
   projectileDodger(ufo, projectile) {
-    var distance = Math.getDistance(ufo.x, ufo.y, projectile.x, projectile.y);
+    let distance = Math.getDistance(ufo.x, ufo.y, projectile.x, projectile.y);
     if(distance < (ufo.bufferRadius * 2 + projectile.radius)) {
-      var direction = Math.getDir(distance, projectile.x, projectile.y, ufo.x, ufo.y);
+      let direction = Math.getDir(distance, projectile.x, projectile.y, ufo.x, ufo.y);
       ufo.alterPath(direction);
       ufo.setClock();
       ufo.clock--;
@@ -402,12 +402,13 @@ export default class Game {
     */
   handleAsteriodExplosion(aID) {
     //Save the essentials
-    var asteroid = this.asteroids[aID];
-    var mass = asteroid.mass;
-    var x = asteroid.x;
-    var y = asteroid.y;
+    let asteroid = this.asteroids[aID];
+    let mass = asteroid.mass;
+    let x = asteroid.x;
+    let y = asteroid.y;
     //Get rid of the asteroid
     asteroid.destroyed = true;
+    //delete this.asteroids[aID];
     this.asteroids.splice(aID, 1);
     this.audioController.trigger('explosion');
     //Smaller asteroids are harder to hit, thus more score
@@ -417,18 +418,18 @@ export default class Game {
     //If it isn't too small
     if(mass >= 15) {
       //random number of pieces the asteroid will break into
-      var random = Math.randomInt(2, 4);
+      let random = Math.randomInt(2, 4);
       //Update asteroid count
       this.numAsteroids += random - 1;
       mass /= random;
       //Random direction
-      var direction = Math.randomBetween(0, Math.tau);
+      let direction = Math.randomBetween(0, Math.tau);
       //Uniform distribution
-      var angleChange = Math.tau / random;
-      for(var i = 0; i < random; i++) {
+      let angleChange = Math.tau / random;
+      for(let i = 0; i < random; i++) {
         //Since mass is also the radius
-        var newX = x + Math.cos(direction) * mass;
-        var newY = y - Math.sin(direction) * mass;
+        let newX = x + Math.cos(direction) * mass;
+        let newY = y - Math.sin(direction) * mass;
         //Create new asteroid
         this.asteroids.push(new Asteroid(newX, newY, mass, direction));
         direction += angleChange;
@@ -445,9 +446,9 @@ export default class Game {
     * @param Asteroid asteroid - asteroid object
     */
   detectShipCrash(ship, asteroid) {
-    var dx = ship.x - asteroid.x;
-    var dy = ship.y - asteroid.y;
-    var distance = dx * dx + dy * dy;
+    let dx = ship.x - asteroid.x;
+    let dy = ship.y - asteroid.y;
+    let distance = dx * dx + dy * dy;
     if(distance < Math.pow(asteroid.radius + ship.radius, 2)) {
       return true;
     }
@@ -477,11 +478,11 @@ export default class Game {
     * @param string color - determines the color of particles to be created
     */
   explode(x, y, color) {
-    var numParticles = Math.randomInt(30, 70);
-    var dir = Math.randomBetween(0, Math.tau);
-    var speed = Math.randomInt(3,5);
-    var life = Math.randomInt(30, 40);
-    for(var i = 0; i < numParticles; i ++) {
+    let numParticles = Math.randomInt(30, 70);
+    let dir = Math.randomBetween(0, Math.tau);
+    let speed = Math.randomInt(3,5);
+    let life = Math.randomInt(30, 40);
+    for(let i = 0; i < numParticles; i ++) {
       if(Math.random() > 0.6) {
         dir = Math.randomBetween(0, Math.tau);
       }
@@ -495,11 +496,11 @@ export default class Game {
     */
   teleport() {
     //Random position
-    var x = Math.randomBetween(100, 900);
-    var y = Math.randomBetween(100, 900);
+    let x = Math.randomBetween(100, 900);
+    let y = Math.randomBetween(100, 900);
     //So you don't spawn right next to something and immediately die
-    var buffer = 50;
-    var collision = false;
+    let buffer = 50;
+    let collision = false;
     //Loop until you find something, potentially opens the door for infinite loop, but extremely unlikely with the small buffer, and everything is constantly moving
     do {
       if(collision) {
@@ -559,14 +560,16 @@ export default class Game {
     * handles the ufo getting destroyed;
     */
   destoryUFO(ufoID) {
-    this.updateScore(this.ufos[ufoID].bounty);
-    this.popups.push(new PopUp(this.ufos[ufoID].x, this.ufos[ufoID].y, this.ufos[ufoID].bounty, 'blip'));
-    if(this.ufos[ufoID].bounty === 500) {
+    let ufo = this.ufos[ufoID];
+    this.updateScore(ufo.bounty);
+    this.popups.push(new PopUp(ufo.x, ufo.y, ufo.bounty, 'blip'));
+    if(ufo.bounty === 500) {
       this.lives++;
       this.hudObjects.lives.info = this.lives;
       this.createBlip("1 life");
     }
     this.kills++;
+    //delete this.ufos[ufoID];
     this.ufos.splice(ufoID, 1);
     this.audioController.trigger('ship explosion');
   }
@@ -596,11 +599,12 @@ export default class Game {
   }
 
   createBlip(string) {
+    let random = Math.randomInt(20, 50);
     if(this.ship.y > 500) {
-      this.popups.push(new PopUp(this.ship.x, this.ship.y - 50, string, "blip"));
+      this.popups.push(new PopUp(this.ship.x, this.ship.y - random, string, "blip"));
     }
     else {
-      this.popups.push(new PopUp(this.ship.x, this.ship.y + 50, string, "blip"));
+      this.popups.push(new PopUp(this.ship.x, this.ship.y + random, string, "blip"));
     }
   }
 
@@ -629,6 +633,7 @@ export default class Game {
     //Update PopUps
     for(let i = 0; i < this.popups.length; i++) {
       if(this.popups[i].update()) {
+        //delete this.popups[i];
         this.popups.splice(i, 1);
       }
     }
@@ -713,8 +718,10 @@ export default class Game {
     //Checks for collisions between asteroids
     for(let i = 0; i < this.asteroids.length; i++) {
       for(let j = i + 1; j < this.asteroids.length; j++) {
-        if(Math.circleCollisionDetection(this.asteroids[i].x, this.asteroids[i].y, this.asteroids[i].radius, this.asteroids[j].x, this.asteroids[j].y, this.asteroids[j].radius)) {
-          this.particleCollision(this.asteroids[i], this.asteroids[j]);
+        let asteroid = this.asteroids[i];
+        let otherAsteroid = this.asteroids[j];
+        if(Math.circleCollisionDetection(asteroid.x, asteroid.y, asteroid.radius, otherAsteroid.x, otherAsteroid.y, otherAsteroid.radius)) {
+          this.particleCollision(asteroid, otherAsteroid);
           this.audioController.trigger('collision');
         }
       }
@@ -723,10 +730,13 @@ export default class Game {
     //Checks for collisions between projectiles and asteroids
     for(let i = 0; i < this.projectiles.length; i++) {
       for(let j = 0; j < this.asteroids.length; j++) {
-        if(Math.circleCollisionDetection(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius, this.asteroids[j].x, this.asteroids[j].y, this.asteroids[j].radius)) {
-          this.explode(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].color);
+        let projectile = this.projectiles[i];
+        let asteroid = this.asteroids[j];
+        if(Math.circleCollisionDetection(projectile.x, projectile.y, projectile.radius, asteroid.x, asteroid.y, asteroid.radius)) {
+          this.explode(projectile.x, projectile.y, projectile.color);
+          //delete this.projectiles[i];
           this.projectiles.splice(i, 1);
-          this.explode(this.asteroids[j].x, this.asteroids[j].y, 'white');
+          this.explode(asteroid.x, asteroid.y, 'white');
           this.handleAsteriodExplosion(j);
           break;
         }
@@ -746,33 +756,37 @@ export default class Game {
 
     //Check if a ship or UFO picks up a powerup
     for(let i = 0; i < this.powerups.length; i++) {
-      if(Math.circleCollisionDetection(this.ship.x, this.ship.y, this.ship.radius, this.powerups[i].pos.x, this.powerups[i].pos.y, this.powerups[i].radius)) {
+      let powerUp = this.powerups[i];
+      if(Math.circleCollisionDetection(this.ship.x, this.ship.y, this.ship.radius, powerUp.pos.x, powerUp.pos.y, powerUp.radius)) {
         this.explode(this.ship.x, this.ship.y, this.ship.color);
-        this.ship.powerups[this.powerups[i].type] = true;
-        if(this.ship.powerupTimers[this.powerups[i].type] > 0) {
-          this.ship.updatePowerUpDisplay(this.powerups[i].type, this.powerups[i].timer);
+        this.ship.powerups[powerUp.type] = true;
+        if(this.ship.powerupTimers[powerUp.type] > 0) {
+          this.ship.updatePowerUpDisplay(powerUp.type, powerUp.timer);
         }
         else {
-          this.ship.createPowerUpDisplay(this.powerups[i].type, this.powerups[i].timer);
+          this.ship.createPowerUpDisplay(powerUp.type, powerUp.timer);
         }
-        this.ship.powerupTimers[this.powerups[i].type] += this.powerups[i].timer;
-        this.createPowerUpBlip(this.powerups[i].type);
-        if(this.powerups[i].type === 2) {
+        this.ship.powerupTimers[powerUp.type] += powerUp.timer;
+        this.createPowerUpBlip(powerUp.type);
+        if(powerUp.type === 2) {
           this.ship.reloading = false;
           this.ship.rateOfFire = this.ship.RATE / 2
         }
+        ////delete this.powerups[i];
         this.powerups.splice(i, 1);
         break;
       }
       for(let j = 0; j < this.ufos.length; j++) {
-        if(Math.circleCollisionDetection(this.ufos[j].x, this.ufos[j].y, this.ufos[j].radius, this.powerups[i].pos.x, this.powerups[i].pos.y, this.powerups[i].radius)) {
-          this.explode(this.ufos[j].x, this.ufos[j].y, this.ufos[j].color);
-          this.ufos[j].powerups[this.powerups[i].type] = true;
-          this.ufos[j].powerupTimers[this.powerups[i].type] += this.powerups[i].timer;
-          if(this.powerups[i].type === 2) {
-            this.ufos[j].reloading = false;
-            this.ufos[j].setRateOfFire();
+        let ufo = this.ufos[j];
+        if(Math.circleCollisionDetection(ufo.x, ufo.y, ufo.radius, powerUp.pos.x, powerUp.pos.y, powerUp.radius)) {
+          this.explode(ufo.x, ufo.y, ufo.color);
+          ufo.powerups[powerUp.type] = true;
+          ufo.powerupTimers[powerUp.type] += powerUp.timer;
+          if(powerUp.type === 2) {
+            ufo.reloading = false;
+            ufo.setRateOfFire();
           }
+          ////delete this.powerups[i];
           this.powerups.splice(i, 1);
           break;
         }
@@ -781,8 +795,11 @@ export default class Game {
 
     for(let i = 0; i < this.powerups.length; i++) {
       for(let k = 0; k < this.asteroids.length; k++) {
-        if(Math.circleCollisionDetection(this.asteroids[k].x, this.asteroids[k].y, this.asteroids[k].radius, this.powerups[i].pos.x, this.powerups[i].pos.y, this.powerups[i].radius)) {
-          this.explode(this.powerups[i].pos.x, this.powerups[i].pos.y, this.powerups[i].color);
+        let powerUp = this.powerups[i];
+        let asteroid = this.asteroids[k];
+        if(Math.circleCollisionDetection(asteroid.x, asteroid.y, asteroid.radius, powerUp.pos.x, powerUp.pos.y, powerUp.radius)) {
+          this.explode(powerUp.pos.x, powerUp.pos.y, powerUp.color);
+          //delete this.powerups[i];
           this.powerups.splice(i, 1);
           break;
         }
@@ -791,8 +808,10 @@ export default class Game {
 
     for(let i = 0; i < this.ufos.length; i++) {
       for(let j = 0; j < this.asteroids.length; j++) {
-        if(this.detectShipCrash(this.ufos[i], this.asteroids[j])) {
-          this.explode(this.ufos[i].x, this.ufos[i].y, this.ufos[i].color);
+        let ufo = this.ufos[i];
+        let asteroid = this.asteroids[j];
+        if(this.detectShipCrash(ufo, asteroid)) {
+          this.explode(ufo.x, ufo.y, ufo.color);
           this.destoryUFO(i);
           break;
         }
@@ -802,19 +821,21 @@ export default class Game {
     if(this.ufos.length > 1) {
       for(let i = 0; i < this.ufos.length; i++) {
         for(let j = i + 1; j < this.ufos.length; j++) {
-          if(Math.circleCollisionDetection(this.ufos[i].x, this.ufos[i].y, this.ufos[i].critical, this.ufos[j].x, this.ufos[j].y, this.ufos[j].critical)) {
-            if((this.ufos[i].type === 'Dodger' || this.ufos[i].type === 'Elite') && !this.ufos[i].reloading) {
-              this.ufoProjectile(this.ufos[i], this.ufos[j].x, this.ufos[j].y);
+          let ufo1 = this.ufos[i];
+          let ufo2 = this.ufos[j];
+          if(Math.circleCollisionDetection(ufo1.x, ufo1.y, ufo1.critical, ufo2.x, ufo2.y, ufo2.critical)) {
+            if((ufo1.type === 'Dodger' || ufo1.type === 'Elite') && !ufo1.reloading) {
+              this.ufoProjectile(ufo1, ufo2.x, ufo2.y);
             }
-            if((this.ufos[j].type === 'Dodger' || this.ufos[i].type === 'Elite') && !this.ufos[i].reloading) {
-              this.ufoProjectile(this.ufos[j], this.ufos[i].x, this.ufos[i].y);
+            if((ufo2.type === 'Dodger' || ufo2.type === 'Elite') && !ufo2.reloading) {
+              this.ufoProjectile(ufo2, ufo1.x, ufo1.y);
             }
             //Get the direction from the first ufo to the second.
-            let dir = Math.getDirection(this.ufos[i].x, this.ufos[i].y, this.ufos[j].x, this.ufos[j].y)
+            let dir = Math.getDirection(ufo1.x, ufo1.y, ufo2.x, ufo2.y)
             //Point the direction the other way
-            this.ufos[i].alterPath(dir + Math.PI);
+            ufo1.alterPath(dir + Math.PI);
             //From the second ufo's perspective, this is pointing away from ufo 1
-            this.ufos[j].alterPath(dir);
+            ufo2.alterPath(dir);
           }
         }
       }
@@ -832,7 +853,8 @@ export default class Game {
 
     //projectile ship collision checks
     for(let i = 0; i < this.projectiles.length; i++) {
-      if(!this.respawning && Math.circleCollisionDetection(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius,
+      let projectile = this.projectiles[i];
+      if(!this.respawning && Math.circleCollisionDetection(projectile.x, projectile.y, projectile.radius,
         this.ship.x, this.ship.y, this.ship.radius)) {
         if(this.ship.powerups[3]) {
           this.explode(this.ship.x, this.ship.y, 'magenta');
@@ -844,41 +866,45 @@ export default class Game {
           this.audioController.trigger('ship explosion');
           this.respawn();
         }
-        this.explode(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].color);
+        this.explode(projectile.x, projectile.y, projectile.color);
+        //delete this.projectiles[i];
         this.projectiles.splice(i, 1);
         break;
       }
       for(let j = 0; j < this.ufos.length; j ++) {
-        if((this.ufos[j].type === 'Dodger' || this.ufos[j].type === 'Elite') && this.ufos[j].clock === this.ufos[j].CLOCK) {
-          if(this.projectileDodger(this.ufos[j], this.projectiles[i])) {
-            if(this.ufos[j].powerups[3]) {
-              this.explode(this.ufos[j].x, this.ufos[j].y, 'magenta');
-              this.ufos[j].powerups[3] = false;
-              this.ufos[j].powerupTimers[3] = 0;
+        let ufo = this.ufos[j];
+        if((ufo.type === 'Dodger' || ufo.type === 'Elite') && ufo.clock === ufo.CLOCK) {
+          if(this.projectileDodger(ufo, projectile)) {
+            if(ufo.powerups[3]) {
+              this.explode(ufo.x, ufo.y, 'magenta');
+              ufo.powerups[3] = false;
+              ufo.powerupTimers[3] = 0;
             }
             else {
-              this.explode(this.ufos[j].x, this.ufos[j].y, this.ufos[j].color);
+              this.explode(ufo.x, ufo.y, ufo.color);
               this.destoryUFO(j);
               this.audioController.trigger('ship explosion');
             }
-            this.explode(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].color);
+            this.explode(projectile.x, projectile.y, projectile.color);
+            //delete this.projectiles[i];
             this.projectiles.splice(i, 1);
             break;
           }
         }
-        else if (Math.circleCollisionDetection(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].radius,
-          this.ufos[j].x, this.ufos[j].y, this.ufos[j].radius)) {
-            if(this.ufos[j].powerups[3]) {
-              this.explode(this.ufos[j].x, this.ufos[j].y, 'magenta');
-              this.ufos[j].powerups[3] = false;
-              this.ufos[j].powerupTimers[3] = 0;
+        else if (Math.circleCollisionDetection(projectile.x, projectile.y, projectile.radius,
+          ufo.x, ufo.y, ufo.radius)) {
+            if(ufo.powerups[3]) {
+              this.explode(ufo.x, ufo.y, 'magenta');
+              ufo.powerups[3] = false;
+              ufo.powerupTimers[3] = 0;
             }
             else {
-              this.explode(this.ufos[j].x, this.ufos[j].y, this.ufos[j].color);
+              this.explode(ufo.x, ufo.y, ufo.color);
               this.destoryUFO(j);
               this.audioController.trigger('ship explosion');
             }
-            this.explode(this.projectiles[i].x, this.projectiles[i].y, this.projectiles[i].color);
+            this.explode(projectile.x, projectile.y, projectile.color);
+            //delete this.projectiles[i];
             this.projectiles.splice(i, 1);
             break;
         }
@@ -951,13 +977,15 @@ export default class Game {
 
     //Update projectiles, if there are any
     for(let i = 0; i < this.projectiles.length; i++) {
-      if(this.projectiles[i].color === 'green') {
-        this.projectiles[i].update(this.ufos);
+      let projectile = this.projectiles[i];
+      if(projectile.color === 'green') {
+        projectile.update(this.ufos);
       }
       else {
-        this.projectiles[i].update(this.ship);
+        projectile.update(this.ship);
       }
-      if(this.projectiles[i].edgeDetection()) {
+      if(projectile.edgeDetection()) {
+        //delete this.projectiles[i];
         this.projectiles.splice(i, 1);
       }
     }
@@ -966,6 +994,7 @@ export default class Game {
     for(let j = 0; j < this.particles.length; j++) {
       this.particles[j].update();
       if(this.particles[j].life <= 0) {
+        //delete this.particles[j];
         this.particles.splice(j, 1);
       }
     }
@@ -1035,13 +1064,17 @@ export default class Game {
       this.render();
     }
     if(this.gameOver) {
-      this.screenBufferContext.font = "50px Times New Roman";
-      this.screenBufferContext.strokeText("GAME OVER", 350, 500);
-      this.screenBufferContext.strokeText("Retry? Press ~", 360, 600);
+      this.backBufferContext.font = "50px Arial";
+      this.backBufferContext.fillStyle = 'yellow';
+      this.backBufferContext.fillText("GAME OVER", 350, 500);
+      this.backBufferContext.fillText("Retry? Press ~", 360, 600);
+      this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
     }
     if(this.paused) {
-      this.screenBufferContext.font = "50px Times New Roman";
-      this.screenBufferContext.strokeText("Paused", 425, 600);
+      this.backBufferContext.font = "50px Arial";
+      this.backBufferContext.fillStyle = 'yellow';
+      this.backBufferContext.fillText("Paused", 425, 600);
+      this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
     }
   }
 }

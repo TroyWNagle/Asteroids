@@ -89,14 +89,14 @@ export default class Ship {
     */
   createParticles(numParticles) {
     //Get position of the back of the ship
-    var x = this.x - Math.sin(this.accel.dir) * this.radius;
-    var y = this.y + Math.cos(this.accel.dir) * this.radius;
-    for(var i = 0; i < numParticles; i++) {
+    let x = this.x - Math.sin(this.accel.dir) * this.radius;
+    let y = this.y + Math.cos(this.accel.dir) * this.radius;
+    for(let i = 0; i < numParticles; i++) {
       //Create some noise on the starting position
-      var dx = x + Math.randomBetween(-3, 3);
-      var dy = y + Math.randomBetween(-3, 3);
+      let dx = x + Math.randomBetween(-3, 3);
+      let dy = y + Math.randomBetween(-3, 3);
       //0.0872665 is 5 degrees in radians
-      var angleNoise = this.accel.dir + Math.randomBetween(-0.0872665 * 2, 0.0872665 * 2)
+      let angleNoise = this.accel.dir + Math.randomBetween(-0.0872665 * 2, 0.0872665 * 2)
       //Create new Particle
       if(this.boosting && this.boost > 0) {
         this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 3.0, 'blue', 35, true));
@@ -166,9 +166,10 @@ export default class Ship {
     }
 
     //Particle effect for the thruster
-    for(var j = 0; j < this.particles.length; j++) {
+    for(let j = 0; j < this.particles.length; j++) {
       this.particles[j].update();
       if(this.particles[j].life <= 0) {
+        //delete this.particles[j];
         this.particles.splice(j, 1);
       }
     }

@@ -24,9 +24,10 @@ export default class BoostBar {
     this.fillLength = this.width * (this.boost / this.MAXBOOST)
     this.createParticles(3);
     //Particle effect for the thruster
-    for(var j = 0; j < this.particles.length; j++) {
+    for(let j = 0; j < this.particles.length; j++) {
       this.particles[j].update();
       if(this.particles[j].life <= 0 || this.particles[j].x > this.x - this.width / 2 + this.fillLength) {
+        //delete this.particles[j];
         this.particles.splice(j, 1);
       }
     }
