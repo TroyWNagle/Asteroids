@@ -546,7 +546,7 @@ export default class Game {
   destoryUFO(ufoID) {
     this.score += this.ufos[ufoID].bounty;
     this.popups.push(new PopUp(this.ufos[ufoID].x, this.ufos[ufoID].y, this.ufos[ufoID].bounty, 'blip'));
-    if(this.ufos[ufoID].bounty === 200 || this.ufos[ufoID].bounty === 500) {
+    if(this.ufos[ufoID].bounty === 500) {
       this.lives++;
       this.createBlip("1 life");
     }
@@ -639,9 +639,9 @@ export default class Game {
     this.asteroids.forEach(asteroid => {
       asteroid.update();
     });
-
+    let test = Math.ceil(this.level * this.level / 2) + 1;
     //Update Level if no more asteroids
-    if(this.kills !== 0 && this.kills % (this.level * 5) === 0) {
+    if(this.kills !== 0 && this.kills % (test) === 0) {
       this.level++;
       this.popups.push(new PopUp(450, 500, "Level " + this.level, 'annoucement'));
       //You Will Probably Need These
@@ -670,14 +670,16 @@ export default class Game {
       this.ufoTimer--;
       if(this.ufoTimer <= 0) {
         this.addUFO();
-        this.ufoTimer = Math.randomInt(this.UFOTIME * (this.ufos.length / this.level), this.UFOTIME * 2 * (this.ufos.length / this.level));
+        let scaling = (this.ufos.length / this.level);
+        this.ufoTimer = Math.randomInt(this.UFOTIME * scaling, this.UFOTIME * 2 * scaling);
       }
     }
 
     this.powerupTimer--;
     if(this.powerupTimer <= 0) {
       this.createPowerUp();
-      this.powerupTimer = Math.randomInt(this.POWERTIME * this.powerups.length, this.POWERTIME * 3 * this.powerups.length)
+      let ratio = (this.powerups.length * 2 / this.level)
+      this.powerupTimer = Math.randomInt(this.POWERTIME * ratio, this.POWERTIME * 2 * ratio)
     }
 
     //Control respawning

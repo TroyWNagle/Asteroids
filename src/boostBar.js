@@ -22,7 +22,7 @@ export default class BoostBar {
 
   update() {
     this.fillLength = this.width * (this.boost / this.MAXBOOST)
-    this.createParticles(2);
+    this.createParticles(3);
     //Particle effect for the thruster
     for(var j = 0; j < this.particles.length; j++) {
       this.particles[j].update();
