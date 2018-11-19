@@ -1,4 +1,5 @@
-import Particle from './particles.js';
+
+import ParticlePool from './particlePool.js';
 import BoostBar from './boostBar.js';
 import PowerUpDisplay from './powerUpTimer.js';
 
@@ -25,6 +26,9 @@ export default class Ship {
     this.radius = 15;
     //particles for thruster trail
     this.particles = [];
+    //size, color, speed
+    this.boostParticles = new ParticlePool(210, 'blue', 3.0);
+    this.normalParticles = new ParticlePool(80, 'red', 2.0);
     this.color = 'green';
     this.MAXBOOST = 120;
     this.boosting = false;
@@ -99,10 +103,12 @@ export default class Ship {
       let angleNoise = this.accel.dir + Math.randomBetween(-0.0872665 * 2, 0.0872665 * 2)
       //Create new Particle
       if(this.boosting && this.boost > 0) {
-        this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 3.0, 'blue', 35, true));
+        this.boostParticles.add(dx, dy, Math.PI + angleNoise, -0.05, 3.5);
+        //this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 3.0, 'blue', 35, true));
       }
       else {
-        this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 2.0, 'red', 20, true));
+        this.normalParticles.add(dx, dy, Math.PI + angleNoise, -0.05, 2.0);
+        //this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 2.0, 'red', 20, true));
       }
     }
   }
@@ -166,13 +172,15 @@ export default class Ship {
     }
 
     //Particle effect for the thruster
-    for(let j = 0; j < this.particles.length; j++) {
+    /*for(let j = 0; j < this.particles.length; j++) {
       this.particles[j].update();
       if(this.particles[j].life <= 0) {
         //delete this.particles[j];
         this.particles.splice(j, 1);
       }
-    }
+    }*/
+    this.boostParticles.update();
+    this.normalParticles.update();
     this.boostGauge.update();
   }
 
@@ -228,9 +236,11 @@ export default class Ship {
     ctx.stroke();
     ctx.restore();
     //Render particles
-    this.particles.forEach(particle => {
+    /*this.particles.forEach(particle => {
       particle.render(ctx);
-    });
+    });*/
+    this.boostParticles.render(ctx);
+    this.normalParticles.render(ctx);
     if(this.powerups[3]) {
       this.drawShield(ctx);
     }

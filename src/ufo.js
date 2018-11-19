@@ -1,5 +1,4 @@
 import Ship from './ship.js';
-import Particle from './particles.js';
 
 /** @class UFO
   * Class to handle the UFO, inherits from the Ship class
@@ -10,6 +9,7 @@ export default class UFO extends Ship {
     */
   constructor(x, y) {
     super();
+    this.boostParticles = null;
     this.x = x;
     this.y = y;
     this.rotation = 0.0;
@@ -29,6 +29,8 @@ export default class UFO extends Ship {
     this.clock = 0;
     this.bounty = 0;
     this.setColor();
+    this.normalParticles.color = this.color;
+    this.normalParticles.speed = 1.0;
     this.setClock();
     this.rateOfFire = 0;
     this.setRateOfFire();
@@ -239,7 +241,8 @@ export default class UFO extends Ship {
       let x = this.x - Math.cos(angle) * this.radius;
       let y = this.y + Math.sin(angle) * this.radius;
       //Create new Particle
-      this.particles.push(new Particle(x, y, Math.PI + this.velocity.dir, 0.70 * this.velocity.mag, this.color, 30, true));
+      this.normalParticles.add(x, y, this.velocity.dir + Math.PI, -0.05, 3.0);
+      //this.particles.push(new Particle(x, y, Math.PI + this.velocity.dir, 0.70 * this.velocity.mag, this.color, 30, true));
     }
   }
 
@@ -252,7 +255,8 @@ export default class UFO extends Ship {
       let dx = x + Math.cos(angle) * this.asteroid.radius;
       let dy = y - Math.sin(angle) * this.asteroid.radius;
 
-      this.particles.push(new Particle(dx, dy, angle + Math.PI / 6, 2.0, this.color, 20, true));
+      this.normalParticles.add(dx, dy, angle, -0.05, 3.0);
+      //this.particles.push(new Particle(dx, dy, angle + Math.PI / 6, 2.0, this.color, 20, true));
     }
   }
 
@@ -299,7 +303,8 @@ export default class UFO extends Ship {
       this.rotation -= 0.01;
     }
     if(this.asteroid !== '') {
-      if(this.asteroid.destroyed) {
+      let dist = Math.getDistance(this.x, this.y, this.asteroid.x, this.asteroid.y);
+      if(this.asteroid.destroyed || dist > this.bufferRadius + this.asteroid.radius) {
         this.asteroid = '';
       }
       else {
@@ -315,13 +320,14 @@ export default class UFO extends Ship {
       this.createParticles(1);
     }
     //Particle effect for the thruster
-    for(let j = 0; j < this.particles.length; j++) {
+    this.normalParticles.update();
+    /*for(let j = 0; j < this.particles.length; j++) {
       this.particles[j].update();
       if(this.particles[j].life <= 0) {
         //delete this.particles[j];
         this.particles.splice(j, 1);
       }
-    }
+    }*/
   }
 
  /** @function render()
@@ -348,9 +354,10 @@ export default class UFO extends Ship {
     });
     ctx.restore();
     //Render particles
-    this.particles.forEach(particle => {
+    this.normalParticles.render(ctx);
+    /*this.particles.forEach(particle => {
       particle.render(ctx);
-    });
+    });*/
     if(this.powerups[3]) {
       super.drawShield(ctx);
     }

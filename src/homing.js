@@ -5,7 +5,7 @@ export default class Homing extends Projectile {
   constructor(x, y, direction, color) {
     super(x, y, direction, color);
     // 0.0174533 is 1 degree in radians
-    this.correction = 0.0174533 * 1.5;
+    this.correction = 0.0174533 * 1.25;
     this.target = null;
     this.past = [];
     this.width = 1;

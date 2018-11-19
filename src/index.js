@@ -112,12 +112,6 @@ export default class Menu {
 	}
 
 	drawMenu() {
-		//Initial Setup
-		this.backBufferContext.fillStyle = 'black';
-		this.backBufferContext.font = '50px Arial';
-		//Refresh canvas
-		this.backBufferContext.fillRect(0,0, this.screenWidth, this.screenWidth);
-
 		this.backBufferContext.save();
 		this.backBufferContext.fillStyle = "blue";
 		for(let i = 0; i < this.buttons.length; i++) {
@@ -139,11 +133,6 @@ export default class Menu {
 	}
 
 	drawControls() {
-		//Initial Setup
-		this.backBufferContext.fillStyle = 'black';
-		this.backBufferContext.font = '50px Arial';
-		//Refresh canvas
-		this.backBufferContext.fillRect(0,0, this.screenWidth, this.screenWidth);
 		this.backBufferContext.save();
 		this.backBufferContext.fillStyle = "blue";
 		this.backBufferContext.fillText("W or Up Arrow: Thruster", this.screenWidth * 0.20, this.screenWidth * 0.25);
@@ -158,6 +147,11 @@ export default class Menu {
 	}
 
 	render() {
+		//Initial Setup
+		this.backBufferContext.fillStyle = 'black';
+		this.backBufferContext.font = '50px Arial';
+		//Refresh canvas
+		this.backBufferContext.fillRect(0,0, this.screenWidth, this.screenWidth);
 		if(this.gameState === "main menu") {
 			this.drawMenu();
 		}

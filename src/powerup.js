@@ -26,8 +26,8 @@ export default class PowerUp {
 					break;
 				//Shield
 				case 3:
-					//60 seconds at 60 fps
-					this.timer = 3600;
+					//45 seconds at 60 fps
+					this.timer = 2700;
 					this.color = 'magenta';
 					break;
 			default:
