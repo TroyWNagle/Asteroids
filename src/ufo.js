@@ -21,7 +21,7 @@ export default class UFO extends Ship {
     //For the actual size of the ship
     this.radius = 25;
     //For the area around the ship the UFO tries to keep empty
-    this.bufferRadius = 60;
+    this.bufferRadius = 75;
     //When the Ship is on the verge of crashing into an asteroid, it shoots to destory it
     this.critical = 40;
     this.color = "";
@@ -71,8 +71,12 @@ export default class UFO extends Ship {
 
   setClock() {
     this.CLOCK = 0;
-    if(this.type === 'Dodger' || this.color === 'Elite') {
+    if(this.type === 'Dodger') {
       this.CLOCK = 5;
+      this.clock = this.CLOCK;
+    }
+    else if(this.type === 'Elite') {
+      this.CLOCK = 1;
       this.clock = this.CLOCK;
     }
     else if(this.type === 'Hurler') {
@@ -86,8 +90,11 @@ export default class UFO extends Ship {
   }
 
   setRateOfFire() {
-    if(this.type === 'Dodger' || this.type === 'Elite') {
+    if(this.type === 'Dodger') {
       this.rateOfFire = Math.randomInt(150, 350);
+    }
+    else if(this.type === 'Elite') {
+      this.rateOfFire = Math.randomInt(75, 150);
     }
     else if(this.type === 'Hurler') {
       this.rateOfFire = Math.randomInt(300, 700);

@@ -3,18 +3,11 @@
 export default class AudioController {
   constructor() {
     //Found this Wav file @ https://freesound.org/people/joshuaempyre/sounds/251461/
-    if(Math.random() > 0.5) {
-      this.theme = new Audio('./theme.wav');
-    }
-    else {
-      this.theme = new Audio('./theme2.wav');
-    }
     this.menu = new Audio('./menu2.wav');
 
     //All Wav files below were created with BFXR
     //Array of sounds for simplifing manipulating the sounds in mass
     this.sounds = [];
-    this.sounds.push(this.theme);
     this.sounds.push(this.menu);
     this.over = new Audio('./gameOver.wav');
     this.sounds.push(this.over);
@@ -40,6 +33,12 @@ export default class AudioController {
   }
 
   playTheme() {
+    if(Math.random() > 0.5) {
+      this.theme = new Audio('./theme.wav');
+    }
+    else {
+      this.theme = new Audio('./theme2.wav');
+    }
     this.theme.volume = 0.1;
     this.theme.loop = true;
     this.theme.play();
@@ -75,12 +74,14 @@ export default class AudioController {
     this.sounds.forEach(sound => {
       sound.muted = true;
     });
+    this.theme.muted = true;
   }
 
   unmute() {
     this.sounds.forEach(sound => {
       sound.muted = false;
     });
+    this.theme.muted = false;
   }
 
   trigger(sound) {

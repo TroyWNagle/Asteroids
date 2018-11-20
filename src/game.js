@@ -57,7 +57,7 @@ export default class Game {
     this.powerups = [];
     this.powerupTimer = Math.randomInt(this.POWERTIME, this.POWERTIME * 3);
     //Over Loop Controllers
-    this.gameOver = false;;
+    this.gameOver = false;
     this.paused = false;
 
     this.audioController = audioController;
@@ -108,11 +108,12 @@ export default class Game {
     //controls the telepor function
     this.teleports = 10;
     this.coolingDown = 50;
+    this.popups = [];
+    this.hudObjects = {score: '', lives: '', level: ''};
+    this.initHUD();
     //Over Loop Controllers
     this.gameOver = false;
     this.paused = false;
-    /*this.theme.loop = true;
-    this.theme.play();*/
   }
 
   initParticlePools() {
@@ -317,10 +318,10 @@ export default class Game {
     let x = Math.randomInt(this.screenSide * 0.10, this.screenSide * 0.90)
     let y = Math.randomInt(this.screenSide * 0.10, this.screenSide * 0.90)
     let random = Math.random();
-    if(random > 1) {
+    if(random > 0.66) {
       this.powerups.push(new PowerUp(x, y, 1));
     }
-    else if (random > 1) {
+    else if (random > 0.33) {
       this.powerups.push(new PowerUp(x, y, 2));
     }
     else {
@@ -366,7 +367,7 @@ export default class Game {
         let m2 = 0;
         //If UFOs are holding the asteroid, treat them as if they were more massive
         if(asteroid.held === true) {
-          m1 = asteroid.mass * 3;
+          m1 = asteroid.mass * 5;
         }
         else {
           m1 = asteroid.mass;
@@ -577,7 +578,7 @@ export default class Game {
     */
   respawn() {
     this.respawning = true;
-    this.popups.push(new PopUp(400, 500, "REPAWNING", 'annoucement'));
+    this.popups.push(new PopUp(400, 500, "RESPAWNING", 'annoucement'));
     this.lives--;
     this.hudObjects.lives.info = this.lives;
     if(this.lives >= 0) {
@@ -585,7 +586,12 @@ export default class Game {
     }
     else {
       this.gameOver = true;
+      this.menu.gameState = 'gameOver';
+      this.menu.buttonNames[1] = 'restart';
+      this.menu.buttonNames[2] = 'mute';
       this.audioController.trigger('game over');
+      this.audioController.stopTheme();
+      this.audioController.playMenu();
     }
   }
 
@@ -596,6 +602,9 @@ export default class Game {
     let ufo = this.ufos[ufoID];
     this.updateScore(ufo.bounty);
     this.popups.push(new PopUp(ufo.x, ufo.y, ufo.bounty, 'blip'));
+    if(ufo.asteroid !== '') {
+      ufo.asteroid.held = false;
+    }
     if(ufo.bounty === 500) {
       this.lives++;
       this.hudObjects.lives.info = this.lives;
@@ -1110,6 +1119,9 @@ export default class Game {
     if(!this.paused && !this.gameOver) {
       this.update();
       this.render();
+    }
+    if(this.gameOver) {
+      this.menu.drawGameOver();
     }
     /*
     if(this.gameOver) {
