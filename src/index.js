@@ -1,14 +1,18 @@
 import Game from './game.js';
 import './game.css';
+import AudioController from './audiocontroller.js';
 
 export default class Menu {
 	constructor() {
 		this.screenWidth = 1000;
 		this.gameState = 'main menu';
+		this.game = null;
 		this.highlighted = 0;
 		this.buttons = [];
-		this.buttonNames = ['start', 'options', 'controls'];
+		this.buttonNames = ['start', 'mute', 'controls'];
+		this.muted = false;
 		this.initButtons();
+		this.audioController = new AudioController();
 
 		//Back Buffer
 		this.backBufferCanvas = document.getElementById("canvas");
@@ -29,6 +33,8 @@ export default class Menu {
 		window.onmousedown = this.handleMouseDown;
 		window.onkeydown = this.handleKeyDown;
 
+		this.audioController.playMenu();
+
 		this.interval = setInterval(this.render, 50 / 3);
 	}
 
@@ -42,7 +48,6 @@ export default class Menu {
 
 	handleKeyDown(event){
 		event.preventDefault();
-		//console.log(event.keyCode);
 		if(this.gameState === 'main menu') {
 			//Enter
 			if(event.keyCode === 13) {
@@ -74,16 +79,13 @@ export default class Menu {
 		//Adjust the client click position to the canvas position. Drawing with 1000px / 800px canvas (1000 / 800) = 5 / 4
 		let x = event.clientX * 5 / 4;
 		let y = event.clientY * 5 / 4;
-		if(this.gameState === 'main menu') {
+		if(this.gameState === 'main menu' || this.gameState === 'paused') {
 			for(let i = 0; i < this.buttons.length; i++) {
 				let check = Math.circleRectangleCollision(x, y, 10, this.buttons[i].x, this.buttons[i].y, this.buttons[i].width, this.buttons[i].height);
 				if(check) {
-					this.clickButton(i);
+					this.clickButton(this.buttonNames[i]);
 				}
 			}
-		}
-		else if (this.gameState === 'options') {
-
 		}
 		else if(this.gameState === 'controls') {
 			this.gameState = 'main menu';
@@ -93,18 +95,32 @@ export default class Menu {
 	clickButton(button) {
 		switch (button) {
 			case "start":
+			case "restart":
 			case 0:
-				new Game(this.backBufferContext, this.backBufferCanvas, this.screenBufferContext, this.screenWidth);
+				this.game = new Game(this.backBufferContext, this.backBufferCanvas, this.screenBufferContext, this.screenWidth, this.audioController, this);
 				this.gameState = "game";
+				this.audioController.playTheme();
+				this.audioController.stopMenu();
 				clearInterval(this.interval);
 				break;
-			case "options":
+			case "mute":
 			case 1:
-
+				if(this.muted) {
+					this.audioController.unmute();
+					this.muted = false;
+				}
+				else {
+					this.audioController.mute();
+					this.muted = true;
+				}
 				break;
 			case "controls":
 			case 2:
-				this.gameState = "controls";
+					this.gameState = "controls";
+				break;
+			case "resume":
+				this.gameState = "game";
+				this.game.paused = false;
 				break;
 			default:
 
@@ -125,8 +141,12 @@ export default class Menu {
 		}
 
 		this.backBufferContext.fillText("Start", this.screenWidth * 0.44, this.screenWidth * 0.37);
-		this.backBufferContext.fillText("Options", this.screenWidth * 0.42, this.screenWidth * 0.52);
+		this.backBufferContext.fillText("Mute", this.screenWidth * 0.44, this.screenWidth * 0.52);
 		this.backBufferContext.fillText("Controls", this.screenWidth * 0.41, this.screenWidth * 0.67);
+		this.backBufferContext.font = '120px Times New Roman';
+		this.backBufferContext.fillText("Asteroids", this.screenWidth * 0.05, this.screenWidth * 0.25);
+		this.backBufferContext.fillText(" & ", this.screenWidth * 0.50, this.screenWidth * 0.25);
+		this.backBufferContext.fillText("Aliens", this.screenWidth * 0.65, this.screenWidth * 0.25);
 		this.backBufferContext.restore();
 
 		this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
@@ -142,6 +162,20 @@ export default class Menu {
 		this.backBufferContext.fillText("Enter: Boost", this.screenWidth * 0.34, this.screenWidth * 0.65);
 		this.backBufferContext.fillText("F: Teleport", this.screenWidth * 0.36, this.screenWidth * 0.75);
 		this.backBufferContext.fillText("Any Key to Go Back", this.screenWidth * 0.26, this.screenWidth * 0.90);
+		this.backBufferContext.restore();
+		this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
+	}
+
+	drawPauseMenu() {
+		this.backBufferContext.save();
+		this.backBufferContext.strokeStyle = "blue";
+		for(let i = 0; i < this.buttons.length; i++) {
+			this.backBufferContext.strokeRect(this.buttons[i].x, this.buttons[i].y, this.buttons[i].width, this.buttons[i].height);
+		}
+		this.backBufferContext.fillStyle = "blue";
+		this.backBufferContext.fillText("Resume", this.screenWidth * 0.42, this.screenWidth * 0.37);
+		this.backBufferContext.fillText("Restart", this.screenWidth * 0.43, this.screenWidth * 0.52);
+		this.backBufferContext.fillText("Mute", this.screenWidth * 0.44, this.screenWidth * 0.67);
 		this.backBufferContext.restore();
 		this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
 	}
@@ -162,4 +196,3 @@ export default class Menu {
 }
 
 new Menu();
-//new Game();

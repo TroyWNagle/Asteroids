@@ -9,7 +9,6 @@ import PowerUp from './powerup.js';
 import PopUp from './popups.js';
 import HUDObject from './hud.js';
 import './math.js';
-import AudioController from './audiocontroller.js';
 
 /** @class Game
   * Game object that controls the interactions between all other Objects
@@ -18,8 +17,9 @@ export default class Game {
   /** @constructor
     * Game object constructor, no arguement, sets up all the necessities.
     */
-  constructor(backBuffer, backBufferCanvas, screenContext, screenWidth) {
+  constructor(backBuffer, backBufferCanvas, screenContext, screenWidth, audioController, menu) {
     this.screenSide = screenWidth;
+    this.menu = menu;
     //Absolutes
     this.MAXUFO = 5;
     this.MAXASTEROIDS = 6;
@@ -60,7 +60,7 @@ export default class Game {
     this.gameOver = false;;
     this.paused = false;
 
-    this.audioController = new AudioController();
+    this.audioController = audioController;
 
     //Input Map
     this.keyMap = {13: false, 32: false, 37: false, 38: false, 39: false, 65: false, 68: false, 70: false, 87: false, 88: false};
@@ -132,20 +132,20 @@ export default class Game {
     */
   handleKeyDown(event) {
     event.preventDefault();
+    if(event.keyCode === 80 || event.keyCode === 27) {
+      this.paused = true;
+      this.menu.gameState = 'paused';
+      this.menu.buttonNames[0] = 'resume';
+      this.menu.buttonNames[1] = 'restart';
+      this.menu.buttonNames[2] = 'mute';
+      this.menu.drawPauseMenu();
+    }
+    if(this.menu.gameState !== 'game') {
+      return;
+    }
     //Update the keyMap
     this.keyMap[event.keyCode] = true;
     //Handle the Pause seperately, to control the loop function
-    if(event.keyCode === 80) {
-      if(this.paused) {
-        this.paused = false;
-      }
-      else {
-        this.paused = true;
-      }
-    }
-    if(event.keyCode === 192) {
-      this.masterReset();
-    }
   }
 
   /** @function
@@ -317,10 +317,10 @@ export default class Game {
     let x = Math.randomInt(this.screenSide * 0.10, this.screenSide * 0.90)
     let y = Math.randomInt(this.screenSide * 0.10, this.screenSide * 0.90)
     let random = Math.random();
-    if(random > 0.66) {
+    if(random > 1) {
       this.powerups.push(new PowerUp(x, y, 1));
     }
-    else if (random > 0.33) {
+    else if (random > 1) {
       this.powerups.push(new PowerUp(x, y, 2));
     }
     else {
@@ -362,8 +362,21 @@ export default class Game {
         let angle = -Math.atan2(otherAsteroid.y - asteroid.y, otherAsteroid.x - asteroid.x);
 
         // Store mass in var for better readability in collision equation
-        let m1 = asteroid.mass;
-        let m2 = otherAsteroid.mass;
+        let m1 = 0;
+        let m2 = 0;
+        //If UFOs are holding the asteroid, treat them as if they were more massive
+        if(asteroid.held === true) {
+          m1 = asteroid.mass * 3;
+        }
+        else {
+          m1 = asteroid.mass;
+        }
+        if(otherAsteroid.held === true) {
+          m2 = otherAsteroid.mass * 3;
+        }
+        else {
+          m2 = otherAsteroid.mass;
+        }
 
         // Velocity before equation
         let u1 = this.rotate(asteroid.velocity, angle);
@@ -416,6 +429,7 @@ export default class Game {
     let y = asteroid.y;
     //Get rid of the asteroid
     asteroid.destroyed = true;
+    asteroid.held = false;
     //delete this.asteroids[aID];
     this.asteroids.splice(aID, 1);
     this.audioController.trigger('explosion');
@@ -467,7 +481,7 @@ export default class Game {
       let direction = Math.getDir(distance, asteroid.x, asteroid.y, ship.x, ship.y);
       ship.alterPath(direction);
       if((ship.type === 'Hurler' || ship.type === 'Elite') && asteroid.radius < ship.critical && ship.asteroid === '') {
-        ship.catchAsteroid(asteroid)
+        ship.catchAsteroid(asteroid);
       }
       //Check if UFO is on the verge of crashing
       else if (distance < Math.pow(ship.critical + asteroid.radius, 2)) {
@@ -563,6 +577,7 @@ export default class Game {
     */
   respawn() {
     this.respawning = true;
+    this.popups.push(new PopUp(400, 500, "REPAWNING", 'annoucement'));
     this.lives--;
     this.hudObjects.lives.info = this.lives;
     if(this.lives >= 0) {
@@ -570,8 +585,6 @@ export default class Game {
     }
     else {
       this.gameOver = true;
-      /*this.theme.loop = false;
-      this.theme.pause();*/
       this.audioController.trigger('game over');
     }
   }
@@ -896,8 +909,7 @@ export default class Game {
       if(!this.respawning && Math.circleCollisionDetection(projectile.x, projectile.y, projectile.radius,
         this.ship.x, this.ship.y, this.ship.radius)) {
         if(this.ship.powerups[3]) {
-          this.explode(this.ship.x, this.ship.y, 'magenta');
-          this.ship.powerups[3] = false;
+          this.explode(this.ship.x, this.ship.y, 'fuchsia');
           this.audioController.trigger('shield broken');
           this.ship.powerupTimers[3] = 0;
         }
@@ -915,7 +927,7 @@ export default class Game {
         if((ufo.type === 'Dodger' || ufo.type === 'Elite') && ufo.clock === ufo.CLOCK) {
           if(this.projectileDodger(ufo, projectile)) {
             if(ufo.powerups[3]) {
-              this.explode(ufo.x, ufo.y, 'magenta');
+              this.explode(ufo.x, ufo.y, 'fuchsia');
               this.audioController.trigger('shield broken');
               ufo.powerups[3] = false;
               ufo.powerupTimers[3] = 0;
@@ -933,7 +945,7 @@ export default class Game {
         else if (Math.circleCollisionDetection(projectile.x, projectile.y, projectile.radius,
           ufo.x, ufo.y, ufo.radius)) {
             if(ufo.powerups[3]) {
-              this.explode(ufo.x, ufo.y, 'magenta');
+              this.explode(ufo.x, ufo.y, 'fuchsia');
               this.audioController.trigger('shield broken');
               ufo.powerups[3] = false;
               ufo.powerupTimers[3] = 0;
@@ -1047,13 +1059,7 @@ export default class Game {
     this.backBufferContext.font = '50px Times New Roman';
     //Refresh canvas
     this.backBufferContext.fillRect(0,0, this.screenSide, this.screenSide);
-    //Display respawning if needed
-    if(this.respawning && !this.gameOver) {
-      this.backBufferContext.save();
-      this.backBufferContext.globalAlpha = 0.5;
-      this.backBufferContext.strokeText("RESPAWNING", 350, 500);
-      this.backBufferContext.restore();
-    }
+
     let len = this.ufos.length;
     //Draw UFOs
     for(let i = 0; i < len; i++) {
@@ -1105,6 +1111,7 @@ export default class Game {
       this.update();
       this.render();
     }
+    /*
     if(this.gameOver) {
       this.backBufferContext.font = "50px Arial";
       this.backBufferContext.fillStyle = 'yellow';
@@ -1117,6 +1124,6 @@ export default class Game {
       this.backBufferContext.fillStyle = 'yellow';
       this.backBufferContext.fillText("Paused", 425, 600);
       this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
-    }
+    }*/
   }
 }

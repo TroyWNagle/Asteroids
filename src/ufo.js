@@ -202,6 +202,7 @@ export default class UFO extends Ship {
 
   catchAsteroid(asteroid) {
     this.asteroid = asteroid
+    this.asteroid.held = true;
     this.asteroid.velocity.x = this.speed.x;
     this.asteroid.velocity.y = this.speed.y;
   }
@@ -227,6 +228,7 @@ export default class UFO extends Ship {
       this.speed.x += Math.sin(this.accel.dir) * this.accel.mag;
       this.asteroid.velocity.x = Math.sin(direction) * magnitude;
       this.asteroid.velocity.y = -Math.cos(direction) * magnitude
+      this.asteroid.held = false;
       this.asteroid = '';
     }
   }
@@ -256,7 +258,6 @@ export default class UFO extends Ship {
       let dy = y - Math.sin(angle) * this.asteroid.radius;
 
       this.normalParticles.add(dx, dy, angle, -0.05, 3.0);
-      //this.particles.push(new Particle(dx, dy, angle + Math.PI / 6, 2.0, this.color, 20, true));
     }
   }
 
@@ -305,6 +306,7 @@ export default class UFO extends Ship {
     if(this.asteroid !== '') {
       let dist = Math.getDistance(this.x, this.y, this.asteroid.x, this.asteroid.y);
       if(this.asteroid.destroyed || dist > this.bufferRadius + this.asteroid.radius) {
+        this.asteroid.held = false;
         this.asteroid = '';
       }
       else {

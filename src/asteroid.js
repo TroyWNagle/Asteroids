@@ -12,6 +12,7 @@ export default class Asteroid {
   constructor(x, y, mass, direction) {
     this.x = x;
     this.y = y;
+    this.held = false;
     this.destroyed = false;
     //if somehow this gets called with a mass less than 5
     if(mass < 5) {
