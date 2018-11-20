@@ -22,8 +22,11 @@ export default class AudioController {
     this.sounds.push(this.shipExplosion);
     //this.laser = new Audio('./laserShoot.wav');
     this.ufoLaser = new Audio('./ufoShot.wav');
+    this.homing = new Audio('./homing.wav');
     this.sounds.push(this.ufoLaser);
     this.teleportSound = new Audio('./teleport.wav');
+    this.shieldBreak = new Audio('./shieldbreak.wav');
+    this.homingPickUp = new Audio('./homingpowerup.wav');
     this.sounds.push(this.teleportSound);
   }
 
@@ -56,11 +59,20 @@ export default class AudioController {
       case 'shoot':
         this.ufoLaser.play();
         break;
+      case 'homing':
+        this.homing.play();
+        break;
+      case 'homing pickup':
+        this.homingPickUp.play();
+        break;
       case 'collision':
         this.collisionSound.play();
         break;
       case 'explosion':
         this.explosion.play();
+        break;
+      case 'shield broken':
+        this.shieldBreak.play();
         break;
       case 'ship explosion':
         this.shipExplosion.play();

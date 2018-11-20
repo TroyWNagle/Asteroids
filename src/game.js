@@ -33,8 +33,6 @@ export default class Game {
     this.kills = 0;
     //Variables to control ufo spawn
     this.ufoTimer = Math.randomInt(this.UFOTIME, this.UFOTIME * 2);
-    //var To control ufo firing
-    //this.ufoRateOfFire = Math.randomInt(150, 350);
     //Vars to help with respawning the player
     this.respawning = false;
     this.respawnTimer = 300;
@@ -67,13 +65,6 @@ export default class Game {
     //Input Map
     this.keyMap = {13: false, 32: false, 37: false, 38: false, 39: false, 65: false, 68: false, 70: false, 87: false, 88: false};
 
-    /*//HUD
-    this.HUDcanvas = document.getElementById('ui');
-    this.HUDcanvas.width = this.screenSide;
-    this.HUDcanvas.height = 100;
-    this.HUDcontext = this.HUDcanvas.getContext('2d');
-    document.body.appendChild(this.HUDcanvas); */
-
     this.backBufferContext = backBuffer;
     this.backBufferCanvas = backBufferCanvas;
     this.screenBufferContext = screenContext;
@@ -100,8 +91,6 @@ export default class Game {
     this.ufoTimer = Math.randomInt(this.UFOTIME, this.UFOTIME * 2);
     this.powerups = [];
     this.powerupTimer = Math.randomInt(this.POWERTIME, this.POWERTIME * 3);
-    //var To control ufo firing
-    //this.ufoRateOfFire = Math.randomInt(150, 350);
     //Vars to help with respawning the player
     this.respawning = false;
     this.respawnTimer = 300;
@@ -179,13 +168,15 @@ export default class Game {
     */
   createProjectile() {
     //Get the coordinates of the tip of the ship, The 1.2 is so you can't run into your own shot immediately
-    let x = this.ship.x + Math.sin(this.ship.accel.dir)* this.ship.radius * 1.2;
-    let y = this.ship.y - Math.cos(this.ship.accel.dir)* this.ship.radius * 1.2;
+    let x = this.ship.x + Math.sin(this.ship.accel.dir)* this.ship.radius * 1.3;
+    let y = this.ship.y - Math.cos(this.ship.accel.dir)* this.ship.radius * 1.3;
     if(this.ship.powerups[1]) {
       this.projectiles.push(new Homing(x, y, this.ship.accel.dir, this.ship.color));
+      this.audioController.trigger('homing');
     }
     else {
       this.projectiles.push(new Projectile(x, y, this.ship.accel.dir, this.ship.color));
+      this.audioController.trigger('shoot');
     }
     this.ship.reloading = true;
   }
@@ -211,11 +202,12 @@ export default class Game {
     let y = ufo.y - Math.cos(direction)* ufo.radius * 1.2;
     if(ufo.powerups[1]) {
       this.projectiles.push(new Homing(x, y, direction, ufo.color));
+      this.audioController.trigger('homing');
     }
     else {
       this.projectiles.push(new Projectile(x, y, direction, ufo.color));
+      this.audioController.trigger('shoot');
     }
-    this.audioController.trigger('shoot');
     ufo.reloading = true;
   }
 
@@ -508,7 +500,6 @@ export default class Game {
         dir = Math.randomBetween(0, Math.tau);
       }
       this.particles[index].add(x, y, Math.PI + dir, -0.05, 3.5)
-      //this.particles.push(new Particle(x, y, Math.PI + dir, speed, color, life, true));
     }
   }
 
@@ -598,7 +589,6 @@ export default class Game {
       this.createBlip("1 life");
     }
     this.kills++;
-    //delete this.ufos[ufoID];
     this.ufos.splice(ufoID, 1);
     this.audioController.trigger('ship explosion');
   }
@@ -768,7 +758,6 @@ export default class Game {
         let asteroid = this.asteroids[j];
         if(Math.circleCollisionDetection(projectile.x, projectile.y, projectile.radius, asteroid.x, asteroid.y, asteroid.radius)) {
           this.explode(projectile.x, projectile.y, projectile.color);
-          //delete this.projectiles[i];
           this.projectiles.splice(i, 1);
           this.explode(asteroid.x, asteroid.y, 'white');
           this.handleAsteriodExplosion(j);
@@ -786,6 +775,7 @@ export default class Game {
           if(this.ship.powerups[3] && asteroid.mass < 15) {
             this.explode(asteroid.x, asteroid.y, 'white');
             this.handleAsteriodExplosion(i);
+            break;
           }
           else {
             this.explode(this.ship.x, this.ship.y, this.ship.color);
@@ -815,7 +805,7 @@ export default class Game {
           this.ship.reloading = false;
           this.ship.rateOfFire = this.ship.RATE / 2
         }
-        ////delete this.powerups[i];
+        this.audioController.trigger('homing pickup');
         this.powerups.splice(i, 1);
         break;
       }
@@ -829,7 +819,7 @@ export default class Game {
             ufo.reloading = false;
             ufo.setRateOfFire();
           }
-          //delete this.powerups[i];
+          this.audioController.trigger('homing pickup');
           this.powerups.splice(i, 1);
           break;
         }
@@ -843,7 +833,6 @@ export default class Game {
         let asteroid = this.asteroids[k];
         if(Math.circleCollisionDetection(asteroid.x, asteroid.y, asteroid.radius, powerUp.pos.x, powerUp.pos.y, powerUp.radius)) {
           this.explode(powerUp.pos.x, powerUp.pos.y, powerUp.color);
-          //delete this.powerups[i];
           this.powerups.splice(i, 1);
           break;
         }
@@ -901,16 +890,6 @@ export default class Game {
       }
     }
 
-    /*if(!this.respawning) {
-      this.ufos.forEach(ufo => {
-        if(Math.circleCollisionDetection(this.ship.x, this.ship.y, this.ship.radius, ufo.x, ufo.y, ufo.radius)) {
-          this.explode(this.ship.x, this.ship.y, this.ship.color);
-          this.audioController.trigger('ship explosion');
-          this.respawn();
-        }
-      });
-    }*/
-
     //projectile ship collision checks
     for(let i = 0; i < this.projectiles.length; i++) {
       let projectile = this.projectiles[i];
@@ -919,6 +898,7 @@ export default class Game {
         if(this.ship.powerups[3]) {
           this.explode(this.ship.x, this.ship.y, 'magenta');
           this.ship.powerups[3] = false;
+          this.audioController.trigger('shield broken');
           this.ship.powerupTimers[3] = 0;
         }
         else {
@@ -927,7 +907,6 @@ export default class Game {
           this.respawn();
         }
         this.explode(projectile.x, projectile.y, projectile.color);
-        //delete this.projectiles[i];
         this.projectiles.splice(i, 1);
         break;
       }
@@ -937,6 +916,7 @@ export default class Game {
           if(this.projectileDodger(ufo, projectile)) {
             if(ufo.powerups[3]) {
               this.explode(ufo.x, ufo.y, 'magenta');
+              this.audioController.trigger('shield broken');
               ufo.powerups[3] = false;
               ufo.powerupTimers[3] = 0;
             }
@@ -946,7 +926,6 @@ export default class Game {
               this.audioController.trigger('ship explosion');
             }
             this.explode(projectile.x, projectile.y, projectile.color);
-            //delete this.projectiles[i];
             this.projectiles.splice(i, 1);
             break;
           }
@@ -955,6 +934,7 @@ export default class Game {
           ufo.x, ufo.y, ufo.radius)) {
             if(ufo.powerups[3]) {
               this.explode(ufo.x, ufo.y, 'magenta');
+              this.audioController.trigger('shield broken');
               ufo.powerups[3] = false;
               ufo.powerupTimers[3] = 0;
             }
@@ -964,7 +944,6 @@ export default class Game {
               this.audioController.trigger('ship explosion');
             }
             this.explode(projectile.x, projectile.y, projectile.color);
-            //delete this.projectiles[i];
             this.projectiles.splice(i, 1);
             break;
         }
@@ -1007,7 +986,6 @@ export default class Game {
     //Space
     if(this.keyMap[32] && !this.ship.reloading && !this.respawning) {
       this.createProjectile();
-      this.audioController.trigger('shoot');
     }
     //F
     if(this.keyMap[70] && this.teleports > 0 && !this.respawning && this.coolingDown === 50) {
@@ -1046,7 +1024,6 @@ export default class Game {
         projectile.update(this.ship);
       }
       if(projectile.edgeDetection()) {
-        //delete this.projectiles[i];
         this.projectiles.splice(i, 1);
       }
     }
@@ -1070,7 +1047,6 @@ export default class Game {
     this.backBufferContext.font = '50px Times New Roman';
     //Refresh canvas
     this.backBufferContext.fillRect(0,0, this.screenSide, this.screenSide);
-    //this.drawHUD();
     //Display respawning if needed
     if(this.respawning && !this.gameOver) {
       this.backBufferContext.save();

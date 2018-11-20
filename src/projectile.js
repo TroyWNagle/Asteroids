@@ -15,8 +15,6 @@ export default class Projectile {
     this.velocity = {mag: 5.0, dir: direction};
     this.speed = {x: 0.0, y: 0.0};
     this.initSpeed();
-    //Particle trail of the projectile
-    //this.particles = [];
     this.particlePool = new ParticlePool(50, this.color, 1.0);
   }
 
@@ -33,9 +31,7 @@ export default class Projectile {
       let dx = x + Math.randomBetween(-this.radius, this.radius);
       let dy = y + Math.randomBetween(-this.radius, this.radius);
       this.particlePool.add(dx, dy, Math.PI * this.velocity.dir, -0.05, 1.0)
-      //this.particles.push(new Particle(dx, dy, Math.PI * this.velocity.dir, 1.0, this.color, 10, true));
     }
-    //console.log(this.particlePool);
   }
 
   /** @function initSpeed()
@@ -65,14 +61,6 @@ export default class Projectile {
     this.x += this.speed.x;
     this.y += this.speed.y;
     this.particlePool.update();
-    //Particle effect for the trail
-    /*for(let j = 0; j < this.particles.length; j++) {
-      this.particles[j].update();
-      if(this.particles[j].life <= 0) {
-        //delete this.particles[j];
-        this.particles.splice(j, 1);
-      }
-    }*/
   }
 
   /** @function render()
@@ -88,8 +76,5 @@ export default class Projectile {
     ctx.stroke();
     ctx.restore();
     this.particlePool.render(ctx);
-    /*this.particles.forEach(particle => {
-      particle.render(ctx);
-    });*/
   }
 }

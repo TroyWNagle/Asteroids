@@ -321,13 +321,6 @@ export default class UFO extends Ship {
     }
     //Particle effect for the thruster
     this.normalParticles.update();
-    /*for(let j = 0; j < this.particles.length; j++) {
-      this.particles[j].update();
-      if(this.particles[j].life <= 0) {
-        //delete this.particles[j];
-        this.particles.splice(j, 1);
-      }
-    }*/
   }
 
  /** @function render()
@@ -355,9 +348,6 @@ export default class UFO extends Ship {
     ctx.restore();
     //Render particles
     this.normalParticles.render(ctx);
-    /*this.particles.forEach(particle => {
-      particle.render(ctx);
-    });*/
     if(this.powerups[3]) {
       super.drawShield(ctx);
     }

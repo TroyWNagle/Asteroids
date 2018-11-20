@@ -18,14 +18,10 @@ export default class Ship {
     this.RATE = 40;
     this.reloading = false;
     this.rateOfFire = this.RATE;
-    //Velocity to determine the magnitude/direction of the ship
-    //This is actually acceleration...
     this.accel = {mag: 0.1, dir: 0.0};
     this.velocity = {mag: 0.0, dir: 0.0};
     this.speed = {x: 0.0, y: 0.0};
     this.radius = 15;
-    //particles for thruster trail
-    this.particles = [];
     //size, color, speed
     this.boostParticles = new ParticlePool(210, 'blue', 3.0);
     this.normalParticles = new ParticlePool(80, 'red', 2.0);
@@ -104,11 +100,9 @@ export default class Ship {
       //Create new Particle
       if(this.boosting && this.boost > 0) {
         this.boostParticles.add(dx, dy, Math.PI + angleNoise, -0.05, 3.5);
-        //this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 3.0, 'blue', 35, true));
       }
       else {
         this.normalParticles.add(dx, dy, Math.PI + angleNoise, -0.05, 2.0);
-        //this.particles.push(new Particle(dx, dy, Math.PI + angleNoise, 2.0, 'red', 20, true));
       }
     }
   }
@@ -171,14 +165,6 @@ export default class Ship {
       }
     }
 
-    //Particle effect for the thruster
-    /*for(let j = 0; j < this.particles.length; j++) {
-      this.particles[j].update();
-      if(this.particles[j].life <= 0) {
-        //delete this.particles[j];
-        this.particles.splice(j, 1);
-      }
-    }*/
     this.boostParticles.update();
     this.normalParticles.update();
     this.boostGauge.update();
@@ -235,10 +221,7 @@ export default class Ship {
     ctx.lineTo(0, -this.radius);
     ctx.stroke();
     ctx.restore();
-    //Render particles
-    /*this.particles.forEach(particle => {
-      particle.render(ctx);
-    });*/
+
     this.boostParticles.render(ctx);
     this.normalParticles.render(ctx);
     if(this.powerups[3]) {
