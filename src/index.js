@@ -112,7 +112,10 @@ export default class Menu {
 			case "restart":
 			case 0:
 				if(this.game !== null) {
-					this.game.audioController.stopTheme();
+					this.audioController.stopTheme();
+					if(!this.muted) {
+						this.audioController.pickTheme();
+					}
 					this.game.masterReset();
 					this.gameState = "game";
 					this.audioController.stopMenu();
@@ -191,11 +194,13 @@ export default class Menu {
 
 	drawPauseMenu() {
 		this.backBufferContext.save();
-		this.backBufferContext.fillStyle = "blue";
+		this.backBufferContext.fillStyle = "black";
+		this.backBufferContext.strokeStyle = "blue";
 		for(let i = 0; i < this.buttons.length; i++) {
 			this.backBufferContext.fillRect(this.buttons[i].x, this.buttons[i].y, this.buttons[i].width, this.buttons[i].height);
+			this.backBufferContext.strokeRect(this.buttons[i].x, this.buttons[i].y, this.buttons[i].width, this.buttons[i].height);
 		}
-		this.backBufferContext.fillStyle = "black";
+		this.backBufferContext.fillStyle = "blue";
 		this.backBufferContext.fillText("Resume", this.screenWidth * 0.42, this.screenWidth * 0.37);
 		this.backBufferContext.fillText("Restart", this.screenWidth * 0.43, this.screenWidth * 0.52);
 		this.backBufferContext.fillText("Mute", this.screenWidth * 0.44, this.screenWidth * 0.67);
@@ -205,8 +210,10 @@ export default class Menu {
 
 	drawGameOver() {
 		this.backBufferContext.save();
+		this.backBufferContext.fillStyle = "black";
 		this.backBufferContext.strokeStyle = "blue";
 		for(let i = 1; i < this.buttons.length; i++) {
+			this.backBufferContext.fillRect(this.buttons[i].x, this.buttons[i].y, this.buttons[i].width, this.buttons[i].height);
 			this.backBufferContext.strokeRect(this.buttons[i].x, this.buttons[i].y, this.buttons[i].width, this.buttons[i].height);
 		}
 		this.backBufferContext.fillStyle = "blue";

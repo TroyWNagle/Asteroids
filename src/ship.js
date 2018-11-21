@@ -172,8 +172,11 @@ export default class Ship {
 
   drawShield(ctx) {
     ctx.save();
-    ctx.fillStyle = 'magenta';
-    ctx.globalAlpha = 0.1;
+    let gradient = ctx.createRadialGradient(this.x, this.y, this.radius * 0.5, this.x, this.y, this.radius * 1.3);
+    gradient.addColorStop(0, "black");
+    gradient.addColorStop(1, "magenta");
+    ctx.fillStyle = gradient;
+    ctx.globalAlpha = 0.3;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius * 1.3, 0, Math.tau);
     ctx.closePath();
@@ -202,6 +205,9 @@ export default class Ship {
     * @param context ctx - the backBufferContext from game.js
     */
   render(ctx) {
+    if(this.powerups[3]) {
+      this.drawShield(ctx);
+    }
     for(let i = 1; i < 4; i ++) {
       if(this.powerUpDisplays[i] !== '') {
         this.powerUpDisplays[i].render(ctx);
@@ -224,9 +230,6 @@ export default class Ship {
 
     this.boostParticles.render(ctx);
     this.normalParticles.render(ctx);
-    if(this.powerups[3]) {
-      this.drawShield(ctx);
-    }
     this.boostGauge.render(ctx);
   }
 }

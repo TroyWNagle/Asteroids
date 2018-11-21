@@ -5,7 +5,7 @@ export default class PowerUp {
 		this.pos = {x: x, y: y};
 		this.type = type
 		this.radius = 10;
-		this.color = 'red';
+		this.color = '';
 		this.timer = 0;
 		this.lineSegments = []
 		this.initTimer()
@@ -18,11 +18,13 @@ export default class PowerUp {
 				case 1:
 					//16.6 seconds at 60 fps
 					this.timer = 1000;
+					this.color = 'red';
 					break;
 				//Rapid Fire
 				case 2:
 					//20 seconds at 60 fps
 					this.timer = 1200;
+					this.color = 'green';
 					break;
 				//Shield
 				case 3:
@@ -40,10 +42,30 @@ export default class PowerUp {
 				this.initLineSegments()
 				break;
 			case 2:
+				this.initRapidLineSegments();
 				break;
 			default:
 
 		}
+	}
+
+	initRapidLineSegments() {
+		let xi, xf, yi, yf;
+		xi = -Math.cos(3 * Math.PI / 4) * this.radius * 0.8;
+		xf = Math.cos(3 * Math.PI / 4) * this.radius * 0.8;
+		yi = -Math.sin(3 * Math.PI / 4) * this.radius * 0.8;
+		yf = Math.sin(3 * Math.PI / 4) * this.radius * 0.8;
+		this.lineSegments.push({xI: xi, xF: xf, yI: yi, yF: yf});
+		xi = -Math.cos(Math.PI / 3) * this.radius * 0.9;
+		xf = Math.cos(3 * Math.PI / 4) * this.radius * 0.7;
+		yi = -Math.sin(Math.PI / 3) * this.radius * 0.9;
+		yf = Math.sin(3 * Math.PI / 4) * this.radius * 0.7;
+		this.lineSegments.push({xI: xi, xF: xf, yI: yi, yF: yf});
+		xi = -Math.cos(4 * Math.PI / 3) * this.radius * 0.9;
+		xf = Math.cos(3 * Math.PI / 4) * this.radius * 0.7;
+		yi = -Math.sin(4 * Math.PI / 3) * this.radius * 0.9;
+		yf = Math.sin(3 * Math.PI / 4) * this.radius * 0.7;
+		this.lineSegments.push({xI: xi, xF: xf, yI: yi, yF: yf});
 	}
 
 	initLineSegments() {

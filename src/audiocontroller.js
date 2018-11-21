@@ -4,6 +4,7 @@ export default class AudioController {
   constructor() {
     //Found this Wav file @ https://freesound.org/people/joshuaempyre/sounds/251461/
     this.menu = new Audio('./menu2.wav');
+    this.pickTheme();
 
     //All Wav files below were created with BFXR
     //Array of sounds for simplifing manipulating the sounds in mass
@@ -32,13 +33,16 @@ export default class AudioController {
     this.sounds.push(this.homingPickUp);
   }
 
-  playTheme() {
+  pickTheme() {
     if(Math.random() > 0.5) {
       this.theme = new Audio('./theme.wav');
     }
     else {
       this.theme = new Audio('./theme2.wav');
     }
+  }
+
+  playTheme() {
     this.theme.volume = 0.1;
     this.theme.loop = true;
     this.theme.play();

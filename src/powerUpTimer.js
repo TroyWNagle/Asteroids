@@ -16,7 +16,7 @@ export default class PowerUpDisplay {
         this.string = 'Homing: ';
         break;
       case 2:
-        this.color = 'red';
+        this.color = 'green';
         this.string = 'Rapid: '
         break;
       case 3:

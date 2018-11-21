@@ -578,7 +578,7 @@ export default class Game {
     */
   respawn() {
     this.respawning = true;
-    this.popups.push(new PopUp(400, 500, "RESPAWNING", 'annoucement'));
+    this.popups.push(new PopUp(350, 475, "RESPAWNING", 'annoucement'));
     this.lives--;
     this.hudObjects.lives.info = this.lives;
     if(this.lives >= 0) {

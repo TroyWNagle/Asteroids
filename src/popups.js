@@ -20,7 +20,12 @@ export default class PopUp {
         this.string = '+ ' + string;
         break;
       case "annoucement":
-        this.life = 80;
+        if(string === 'RESPAWNING') {
+          this.life = 300;
+        }
+        else {
+          this.life = 120;
+        }
         this.size = 50;
         this.string = string;
         break;
