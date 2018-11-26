@@ -1,31 +1,50 @@
 Sound:
+  + Sometimes the theme music is very delayed when starting the game.
+    + Not sure if this is because I recently deployed when I tested it or not.
+    - It doesn't seem to be happening anymore.
+
+Player:
+  + Sometimes immediately gets destroyed when shooting.
+    + Possible problem -> Projectile isn't moving fast enough to get out of the way of the ship when shot.
+      - This shouldn't be possible though. The ships max speed is less than the projectiles speed.
+    + Projectile spawns inside the ship and doesn't make it out of the ships hit box in time.
+      - More likely, but I already add a slight buffer to prevent that from happening.
+    - Latest fix was to decrease the overall hit box of the player ship while maintaining the visual size. Seems to have worked.
+
+--------------------------------------------------------------------------
+Fixed Bugs
+
+Sound:
 + Theme music won't work any more
   + Promise error when trying to play
   + Something wrong with the file or how it is referenced
+  - Downloaded a new copy of the theme music. Also added another theme song.
 + Sound for player to shoot (laser audio object), still won't work
   + Temporary fix, using the UFO shoot sound
-
-UFOs / Asteroids:
- + Asteroids caught by UFOs phase through each other...
-  + Not really sure how to approach fixing that.
-  + Will be pretty rare in an actual setting, but still.
-  - Haven't seen this bug in quite some times, not sure if I indirectly fixed it or not.
- + UFOs catching an asteroid near the edge of the screen is problematic.
- + Since the asteroids want to wrap around, they go haywire.
-  + Possible solutions:
-    + Restrict the UFOs from catching the asteroids near the edge of the screen.
-    + Make the UFO let go of the asteroid if that happens, simple distance check.
---------------------------------------------------------------------------
-Fixed Bugs
+  - Decided to stick with same laser sound.
+  - Homing projectiles have a unique sound though.
 
 Power Ups:
 + If multiple power ups are present, when you pick one
   up, all of them disappear
   + Something Probably wrong with the takePowerUp() function
   + Only happens some times...?
-    - Fixed it, I'm an idiot. Splice takes an index, not an object
+    - Fixed it. Splice takes an index, not an object
 
 Mechanics:
 + Homing shot -> Struggles when multiple UFOs in scanning arc
   - Fixed as far as I can tell, And got rid of the scanning arc
   - Only searches for the closest UFO now
+
+UFOs / Asteroids:
+ + Asteroids caught by UFOs phase through each other...
+  + Not really sure how to approach fixing that.
+  + Will be pretty rare in an actual setting, but still.
+  - Haven't seen this bug in quite some times, not sure if I indirectly fixed it or not.
+  - Increased the effective mass of held asteroids to ensure they 'win' collisions.
+ + UFOs catching an asteroid near the edge of the screen is problematic.
+ + Since the asteroids want to wrap around, they go haywire.
+  + Possible solutions:
+    + Restrict the UFOs from catching the asteroids near the edge of the screen.
+    + Make the UFO let go of the asteroid if that happens, simple distance check.
+    - Added the distance check, and it is no longer a problem.

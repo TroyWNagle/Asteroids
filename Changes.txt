@@ -211,3 +211,6 @@ Homing.js:
 
 11/23/2018
 --------------------------------------------------------------------------------
+All:
+  + Added comments to everything. Functions, Classes, certain lines of code.
+  + Removed any dead chunks of code that I noticed. Only thing I know about that didn't get removed is particles.js.
