@@ -15,31 +15,42 @@ export default class Ship {
     //position of the center of the Ship
     this.x = 500;
     this.y = 500;
+    //Rate of fire variable that helps with resetting the cooldown.
     this.RATE = 40;
     this.reloading = false;
+    //timer for rate of fire.
     this.rateOfFire = this.RATE;
+    //Acceleration vector
     this.accel = {mag: 0.1, dir: 0.0};
+    //Velocity vector
     this.velocity = {mag: 0.0, dir: 0.0};
+    //Amount the x & y position gets updated every frame.
     this.speed = {x: 0.0, y: 0.0};
-    this.radius = 15;
-    //size, color, speed
+    this.radius = 12;
+    //Object pools for the particle trail, one for each color.
     this.boostParticles = new ParticlePool(210, 'blue', 3.0);
     this.normalParticles = new ParticlePool(80, 'red', 2.0);
     this.color = 'green';
+    //Variables for managing boost
     this.MAXBOOST = 120;
     this.boosting = false;
     this.boost = 120;
     this.boostRecharge = 1;
+    //X & Y speed cannot over come the top speed
     this.TOPSPEED = 3.0;
-    // 1 = homing, 2 = rapid fire
+    // 1 = homing, 2 = rapid fire, 3 = shield
     this.powerups = {1: false, 2: false, 3: false};
+    //Timers for respective power ups.
     this.powerupTimers = {1: 0, 2: 0, 3: 0};
+    //A display for each power up timer.
     this.powerUpDisplays = {1: '', 2: '', 3: ''};
+    //Boost guage object for displaying the boost of the player.
     this.boostGauge = new BoostBar(this.boost, this.MAXBOOST);
   }
 
   /** @function updateSpeed()
     * Handles the updating of the player's ship and enforces the speed limit
+    * @param {float} acceleration - amount of acceleration introduced. Differnt value based on if you are boosting or not.
     */
   updateSpeed(acceleration) {
     //Alter the direction
@@ -65,6 +76,17 @@ export default class Ship {
     }
   }
 
+  /** @Function setRateOfFire()
+    * Handles the resetting of the rate of fire variable
+    */
+  setRateOfFire() {
+    this.rateOfFire = this.RATE;
+    //Check if you have the rapid fire power up.
+    if(this.powerups[2]) {
+      this.rateOfFire = this.RATE / 2;
+    }
+  }
+
   /** @function edgeDetection()
     * function to handle the player's ship passing the edge of the screen, wraps back around
     */
@@ -85,19 +107,19 @@ export default class Ship {
 
   /** @function createParticles()
     * function to handle creating the particles for the thruster trail
-    * @param int numParticles - number of particles to be created
+    * @param {int} numParticles - number of particles to be created
     */
   createParticles(numParticles) {
     //Get position of the back of the ship
-    let x = this.x - Math.sin(this.accel.dir) * this.radius;
-    let y = this.y + Math.cos(this.accel.dir) * this.radius;
+    let x = this.x - Math.sin(this.accel.dir) * this.radius * 1.2;
+    let y = this.y + Math.cos(this.accel.dir) * this.radius * 1.2;
     for(let i = 0; i < numParticles; i++) {
       //Create some noise on the starting position
       let dx = x + Math.randomBetween(-3, 3);
       let dy = y + Math.randomBetween(-3, 3);
       //0.0872665 is 5 degrees in radians
       let angleNoise = this.accel.dir + Math.randomBetween(-0.0872665 * 2, 0.0872665 * 2)
-      //Create new Particle
+      //Create new Particle depending on if you are boosting or not.
       if(this.boosting && this.boost > 0) {
         this.boostParticles.add(dx, dy, Math.PI + angleNoise, -0.05, 3.5);
       }
@@ -107,6 +129,9 @@ export default class Ship {
     }
   }
 
+  /** @Function checkPowerUps()
+   * Checks & adjusts the timers on all the power ups
+   */
   checkPowerUps() {
     for(let i = 1; i <= 3; i++) {
       if(this.powerups[i]) {
@@ -120,6 +145,9 @@ export default class Ship {
     }
   }
 
+  /** @Function updateVelocity()
+    * Handles the updating of the velocity vector.
+    */
   updateVelocity() {
     let mag = Math.sqrt(this.speed.x * this.speed.x + this.speed.y * this.speed.y);
     let angle = Math.acos(this.speed.y / mag);
@@ -134,7 +162,7 @@ export default class Ship {
   }
 
   /** @function update()
-    * handles the updating of the ships position and the particles tied to its trail
+    * handles the updating of the ships position, reloading, boost, and the particles tied to its trail
     */
   update() {
     this.edgeDetection();
@@ -146,12 +174,7 @@ export default class Ship {
     if(this.reloading) {
       this.rateOfFire--;
       if(this.rateOfFire <= 0) {
-        if(this.powerups[2]) {
-          this.rateOfFire = this.RATE / 2
-        }
-        else {
-          this.rateOfFire = this.RATE;
-        }
+        this.setRateOfFire();
         this.reloading = false;
       }
     }
@@ -170,6 +193,9 @@ export default class Ship {
     this.boostGauge.update();
   }
 
+  /** @Function drawShield()
+    * draws the shield around the ship.
+    */
   drawShield(ctx) {
     ctx.save();
     let gradient = ctx.createRadialGradient(this.x, this.y, this.radius * 0.5, this.x, this.y, this.radius * 1.3);
@@ -178,12 +204,17 @@ export default class Ship {
     ctx.fillStyle = gradient;
     ctx.globalAlpha = 0.3;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 1.3, 0, Math.tau);
+    ctx.arc(this.x, this.y, this.radius * 1.4, 0, Math.tau);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
   }
 
+  /** @Function createPowerUpDisplay()
+    * Handles the creating of a power up timer display object.
+    * @param {int} type - type of power up that needs to be displayed
+    * @param {int} timer - amount of frames the power up is active.
+    */
   createPowerUpDisplay(type, timer) {
     if(type === 1) {
       this.powerUpDisplays[type] = new PowerUpDisplay(5, 1000 * 0.40, type, timer);
@@ -196,6 +227,11 @@ export default class Ship {
     }
   }
 
+  /** @Function updatePowerUpDisplay()
+    * Updates the timer on the power up displays.
+    * @param {int} type - which power up timer needs updated.
+    * @param {int} amount - amoun the timer needs to be adjusted.
+    */
   updatePowerUpDisplay(type, amount) {
     this.powerUpDisplays[type].timer += amount;
   }
@@ -205,9 +241,11 @@ export default class Ship {
     * @param context ctx - the backBufferContext from game.js
     */
   render(ctx) {
+    //Draw the shield if need be.
     if(this.powerups[3]) {
       this.drawShield(ctx);
     }
+    //Draw the power up displays if there are any.
     for(let i = 1; i < 4; i ++) {
       if(this.powerUpDisplays[i] !== '') {
         this.powerUpDisplays[i].render(ctx);
@@ -219,12 +257,13 @@ export default class Ship {
     //Enable accurate rotation
     ctx.translate(this.x, this.y);
     ctx.rotate(this.accel.dir);
+    let adjustment = this.radius * 1.2;
     //Draw ship
-    ctx.moveTo(0, -this.radius);
-    ctx.lineTo(10, this.radius);
-    ctx.lineTo(0, this.radius / 1.5);
-    ctx.lineTo(-10, this.radius);
-    ctx.lineTo(0, -this.radius);
+    ctx.moveTo(0, -adjustment);
+    ctx.lineTo(10, adjustment);
+    ctx.lineTo(0, adjustment / 1.5);
+    ctx.lineTo(-10, adjustment);
+    ctx.lineTo(0, -adjustment);
     ctx.stroke();
     ctx.restore();
 

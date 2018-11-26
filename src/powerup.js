@@ -1,30 +1,42 @@
 
-
+/** @Class PowerUp
+	*	Object to keep track of power up information.
+	*/
 export default class PowerUp {
+	/** @Constructor
+		* Handles the initialization of a power up object.
+		* @param {floats} x, y - position variables
+		* @param {int} type - type theh power up needs to be, can only be 1 = Homing, 2 = Rapid Fire, 3 = Shield
+		*/
 	constructor(x, y, type) {
 		this.pos = {x: x, y: y};
 		this.type = type
 		this.radius = 10;
 		this.color = '';
 		this.timer = 0;
+		//Detemines the shape of the power up
 		this.lineSegments = []
-		this.initTimer()
-		this.initShape()
+		this.initPowerUp();
 	}
 
-	initTimer() {
+	/** @Function initPowerUp
+		* Handles the initialization of the power ups' specific variables.
+		*/
+	initPowerUp() {
 		switch (this.type){
 				//Homing
 				case 1:
 					//16.6 seconds at 60 fps
 					this.timer = 1000;
 					this.color = 'red';
+					this.initLineSegments();
 					break;
 				//Rapid Fire
 				case 2:
 					//20 seconds at 60 fps
 					this.timer = 1200;
 					this.color = 'green';
+					this.initRapidLineSegments();
 					break;
 				//Shield
 				case 3:
@@ -36,38 +48,34 @@ export default class PowerUp {
 		}
 	}
 
-	initShape() {
-		switch (this.type) {
-			case 1:
-				this.initLineSegments()
-				break;
-			case 2:
-				this.initRapidLineSegments();
-				break;
-			default:
-
-		}
-	}
-
+	/** @Function initRapidLineSegments()
+		* Handles the filling of the line Segments array for the shape of the rapid fire power up.
+		*/
 	initRapidLineSegments() {
 		let xi, xf, yi, yf;
-		xi = -Math.cos(3 * Math.PI / 4) * this.radius * 0.8;
-		xf = Math.cos(3 * Math.PI / 4) * this.radius * 0.8;
-		yi = -Math.sin(3 * Math.PI / 4) * this.radius * 0.8;
-		yf = Math.sin(3 * Math.PI / 4) * this.radius * 0.8;
+		let angle1 = 3 * Math.PI / 4;
+		let angle2 = Math.PI / 3;
+		let angle3 = 4 * Math.PI / 3;
+		xi = -Math.cos(angle1) * this.radius * 0.8;
+		xf = Math.cos(angle1) * this.radius * 0.8;
+		yi = -Math.sin(angle1) * this.radius * 0.8;
+		yf = Math.sin(angle1) * this.radius * 0.8;
 		this.lineSegments.push({xI: xi, xF: xf, yI: yi, yF: yf});
-		xi = -Math.cos(Math.PI / 3) * this.radius * 0.9;
-		xf = Math.cos(3 * Math.PI / 4) * this.radius * 0.7;
-		yi = -Math.sin(Math.PI / 3) * this.radius * 0.9;
-		yf = Math.sin(3 * Math.PI / 4) * this.radius * 0.7;
+		xi = -Math.cos(angle2) * this.radius * 0.9;
+		xf = Math.cos(angle1) * this.radius * 0.7;
+		yi = -Math.sin(angle2) * this.radius * 0.9;
+		yf = Math.sin(angle1) * this.radius * 0.7;
 		this.lineSegments.push({xI: xi, xF: xf, yI: yi, yF: yf});
-		xi = -Math.cos(4 * Math.PI / 3) * this.radius * 0.9;
-		xf = Math.cos(3 * Math.PI / 4) * this.radius * 0.7;
-		yi = -Math.sin(4 * Math.PI / 3) * this.radius * 0.9;
-		yf = Math.sin(3 * Math.PI / 4) * this.radius * 0.7;
+		xi = -Math.cos(angle3) * this.radius * 0.9;
+		xf = Math.cos(angle1) * this.radius * 0.7;
+		yi = -Math.sin(angle3) * this.radius * 0.9;
+		yf = Math.sin(angle1) * this.radius * 0.7;
 		this.lineSegments.push({xI: xi, xF: xf, yI: yi, yF: yf});
 	}
 
+	/** @Function initLineSegments()
+		* Handles theh initialization of theh line segments array for the homing projectile.
+		*/
 	initLineSegments() {
 		let xi;
 		let xf;

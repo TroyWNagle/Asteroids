@@ -2,15 +2,27 @@ import Game from './game.js';
 import './game.css';
 import AudioController from './audiocontroller.js';
 
+/** @Class Menu
+	* Object to control the menus & managing game state
+	*/
 export default class Menu {
+	/** @Constructor
+		* Initializes all essential variables for the menus & rendering
+		*/
 	constructor() {
 		this.screenWidth = 1000;
+		//State variable that changes how user input handling happens
 		this.gameState = 'main menu';
+		//Game variable that will be turned into a Game Object
 		this.game = null;
+		//Index variable for the array of buttons
 		this.highlighted = 0;
+		//Array of button information such as location and size.
 		this.buttons = [];
 		this.buttonNames = ['start', 'mute', 'controls'];
+		//Variable to control when menu music should start, to avoid auto-play erros from Google Chrome
 		this.musicStarted = false;
+		//Keeps track of whether or not sounds are muted.
 		this.muted = false;
 		this.initButtons();
 		this.audioController = new AudioController();
@@ -28,15 +40,20 @@ export default class Menu {
 		document.body.appendChild(this.screenBufferCanvas);
 		this.screenBufferContext = this.screenBufferCanvas.getContext('2d');
 
+		//Binders
 		this.render = this.render.bind(this);
 		this.handleKeyDown = this.handleKeyDown.bind(this);
 		this.handleMouseDown = this.handleMouseDown.bind(this);
 		window.onmousedown = this.handleMouseDown;
 		window.onkeydown = this.handleKeyDown;
 
+		//Sets loop for menu, 60 fps
 		this.interval = setInterval(this.render, 50 / 3);
 	}
 
+	/** @Function initButtons()
+		* Handles the initialization of button information
+		*/
 	initButtons() {
 		let scaleY = 0.30;
 		for(let i = 0; i < 3; i++) {
@@ -45,19 +62,27 @@ export default class Menu {
 		}
 	}
 
+	/** @Function handleKeyDown()
+		* Event handler function for user input.
+		* @param {event} event - event object
+		*/
 	handleKeyDown(event){
 		event.preventDefault();
+		//Allow menu music to start playing if it hasn't already
 		if(!this.musicStarted) {
 			this.audioController.playMenu();
 			this.musicStarted = true;
 		}
+		//Check game state
 		if(this.gameState === 'main menu') {
 			//Enter
 			if(event.keyCode === 13) {
+				//Activate button that is highlighted
 				this.clickButton(this.buttonNames[this.highlighted]);
 			}
 			//W & Up arrow
 			if(event.keyCode === 87 || event.keyCode === 38) {
+				//Alter highlighted button
 				this.highlighted--;
 				if(this.highlighted < 0) {
 					this.highlighted = this.buttons.length - 1;
@@ -65,19 +90,26 @@ export default class Menu {
 			}
 			//S & Down Arrow
 			if(event.keyCode === 83 || event.keyCode === 40) {
+				//Alter highlighted button
 				this.highlighted++;
 				if(this.highlighted >= this.buttons.length) {
 					this.highlighted = 0;
 				}
 			}
 		}
+		//If you are in the controls screen, just go back to the main menu.
 		else if(this.gameState === 'controls') {
 			this.gameState = 'main menu';
 		}
 	}
 
+	/** @Function handleMouseDown()
+		* Event handler function for user input
+		* @param {event} event - event object
+		*/
 	handleMouseDown(event) {
 		event.preventDefault();
+		//Allow menu musice to start if it hasn't yet.
 		if(!this.musicStarted) {
 			this.audioController.playMenu();
 			this.musicStarted = true;
@@ -85,18 +117,23 @@ export default class Menu {
 		//Adjust the client click position to the canvas position. Drawing with 1000px / 800px canvas (1000 / 800) = 5 / 4
 		let x = event.clientX * 5 / 4;
 		let y = event.clientY * 5 / 4;
+		//Check game state
 		if(this.gameState === 'main menu' || this.gameState === 'paused') {
+			//Check if a button was clicked
 			for(let i = 0; i < this.buttons.length; i++) {
 				let check = Math.circleRectangleCollision(x, y, 10, this.buttons[i].x, this.buttons[i].y, this.buttons[i].width, this.buttons[i].height);
 				if(check) {
+					//Activate the button that was clicked.
 					this.clickButton(this.buttonNames[i]);
 				}
 			}
 		}
+		//If in controls screen go back to menu.
 		else if(this.gameState === 'controls') {
 			this.gameState = 'main menu';
 		}
 		else if(this.gameState === 'gameOver') {
+			//Check if buttons have been clicked
 			for(let i = 1; i < this.buttons.length; i++) {
 				let check = Math.circleRectangleCollision(x, y, 10, this.buttons[i].x, this.buttons[i].y, this.buttons[i].width, this.buttons[i].height);
 				if(check) {
@@ -106,31 +143,40 @@ export default class Menu {
 		}
 	}
 
+	/** @Function clickButton()
+		* Activates the appropriate behavior
+		* @param {string} button - name of the button pressed.
+		*/
 	clickButton(button) {
 		switch (button) {
 			case "start":
 			case "restart":
 			case 0:
+				//Check it there is already a game object or not.
 				if(this.game !== null) {
 					this.audioController.stopTheme();
 					if(!this.muted) {
 						this.audioController.pickTheme();
 					}
+					//Reset the game object
 					this.game.masterReset();
 					this.gameState = "game";
 					this.audioController.stopMenu();
 					this.audioController.playTheme();
 				}
 				else {
-					this.game = new Game(this.backBufferContext, this.backBufferCanvas, this.screenBufferContext, this.screenWidth, this.audioController, this);
+					//If there isn't a game object, create one.
+					this.game = new Game(this);
 					this.gameState = "game";
 					this.audioController.playTheme();
 					this.audioController.stopMenu();
 				}
+				// Stop the menu interval
 				clearInterval(this.interval);
 				break;
 			case "mute":
 			case 1:
+			//Check whether the sound is muted already or n
 				if(this.muted) {
 					this.audioController.unmute();
 					this.muted = false;
@@ -153,10 +199,14 @@ export default class Menu {
 		}
 	}
 
+	/** @Function drawMenu()
+		* Draws the buttons of the main menu
+		*/
 	drawMenu() {
 		this.backBufferContext.save();
 		this.backBufferContext.fillStyle = "blue";
 		for(let i = 0; i < this.buttons.length; i++) {
+			//Make sure the highlighted button is a brighter color
 			if(this.highlighted === i) {
 				this.backBufferContext.strokeStyle = "cyan";
 			}
@@ -169,6 +219,7 @@ export default class Menu {
 		this.backBufferContext.fillText("Start", this.screenWidth * 0.44, this.screenWidth * 0.37);
 		this.backBufferContext.fillText("Mute", this.screenWidth * 0.44, this.screenWidth * 0.52);
 		this.backBufferContext.fillText("Controls", this.screenWidth * 0.41, this.screenWidth * 0.67);
+		this.backBufferContext.fillText("By: Troy Nagle", this.screenWidth * 0.02, this.screenWidth * 0.98);
 		this.backBufferContext.font = '120px Times New Roman';
 		this.backBufferContext.fillText("Asteroids", this.screenWidth * 0.05, this.screenWidth * 0.25);
 		this.backBufferContext.fillText(" & ", this.screenWidth * 0.50, this.screenWidth * 0.25);
@@ -178,6 +229,9 @@ export default class Menu {
 		this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
 	}
 
+	/** @Function drawControls()
+		* Draws the controls screen
+		*/
 	drawControls() {
 		this.backBufferContext.save();
 		this.backBufferContext.fillStyle = "blue";
@@ -192,6 +246,9 @@ export default class Menu {
 		this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
 	}
 
+	/** @Function drawPauseMenu()
+		* Draws the buttons of the pause menu.
+		*/
 	drawPauseMenu() {
 		this.backBufferContext.save();
 		this.backBufferContext.fillStyle = "black";
@@ -208,6 +265,9 @@ export default class Menu {
 		this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
 	}
 
+	/** @Function drawGameOver()
+		* Draws the game over screen & buttons
+		*/
 	drawGameOver() {
 		this.backBufferContext.save();
 		this.backBufferContext.fillStyle = "black";
@@ -226,6 +286,9 @@ export default class Menu {
 		this.screenBufferContext.drawImage(this.backBufferCanvas, 0, 0);
 	}
 
+	/** @Function render()
+		* Refreshes the screen & calls certain draw functions depending on the game state.
+		*/
 	render() {
 		//Initial Setup
 		this.backBufferContext.fillStyle = 'black';
@@ -241,4 +304,5 @@ export default class Menu {
 	}
 }
 
+//Make sure the Script immediately starts up with the menu.
 new Menu();

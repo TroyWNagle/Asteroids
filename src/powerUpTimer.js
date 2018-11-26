@@ -1,6 +1,14 @@
 
-
+/** @Class PowerUpDisplay
+  * Object to display the players active power ups.
+  */
 export default class PowerUpDisplay {
+  /** @Constructor
+    * Initializes the power up display object.
+    * @param {floats} x, y - position variables.
+    * @param {int} type - time of the power up. 1 = Homing, 2 = Rapid Fire, 3 = Shield
+    * @param {int} timer - number of frames the power up is still active.
+    */
   constructor(x, y, type, timer) {
     this.x = x;
     this.y = y;
@@ -9,6 +17,9 @@ export default class PowerUpDisplay {
     this.initColor();
   }
 
+  /** @Function initColor()
+    * Handles the assigning of the color & string variables for displaying.
+    */
   initColor() {
     switch (this.type) {
       case 1:
@@ -28,6 +39,10 @@ export default class PowerUpDisplay {
     }
   }
 
+  /** @Function render()
+    * Draws the object to the screen.
+    * @param {Canvas Context} ctx - backBufferContext
+    */
   render(ctx) {
     ctx.save();
     ctx.fillStyle = this.color;

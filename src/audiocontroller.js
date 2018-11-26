@@ -1,8 +1,13 @@
 
-
+/** @Class AudioController
+  * Class to control all audio objects, updating & playing.
+  */
 export default class AudioController {
+  /** @Constructor
+    * No arguements. Loads all the audio files that will be needed.
+    */
   constructor() {
-    //Found this Wav file @ https://freesound.org/people/joshuaempyre/sounds/251461/
+    //Menu & Theme songs have been found @ https://freesound.org/
     this.menu = new Audio('./menu2.wav');
     this.pickTheme();
 
@@ -24,6 +29,7 @@ export default class AudioController {
     this.ufoLaser = new Audio('./ufoShot.wav');
     this.sounds.push(this.ufoLaser);
     this.homing = new Audio('./homing.wav');
+    this.homing.volume = 0.70;
     this.sounds.push(this.homing);
     this.teleportSound = new Audio('./teleport.wav');
     this.sounds.push(this.teleportSound);
@@ -33,6 +39,9 @@ export default class AudioController {
     this.sounds.push(this.homingPickUp);
   }
 
+  /** @Function pickTheme()
+    * Functon to handle picking one of the two themes.
+    */
   pickTheme() {
     if(Math.random() > 0.5) {
       this.theme = new Audio('./theme.wav');
@@ -42,38 +51,41 @@ export default class AudioController {
     }
   }
 
+  /** @Function playTheme()
+    * Function to play the theme on a loop.
+    */
   playTheme() {
     this.theme.volume = 0.1;
     this.theme.loop = true;
     this.theme.play();
   }
 
+  /** @Function stopTheme
+    * Functon to stop the theme from playing.
+    */
   stopTheme() {
     this.theme.pause();
   }
 
+  /** @Functon playMenu()
+    * Functon to play the menu music on a loop.
+    */
   playMenu() {
     this.menu.volume = 0.30;
     this.menu.loop = true;
     this.menu.play();
   }
 
+  /** @Functon stopMenu()
+    * Function to stop the menu music.
+    */
   stopMenu() {
     this.menu.pause();
   }
 
-  adjustMasterVolume(change) {
-    this.sounds.forEach(sound => {
-      sound.volume += change;
-      if(sound.volume < 0.0) {
-        sound.volume = 0.0;
-      }
-      if(sound.volume > 1.0) {
-        sound.volume = 1.0;
-      }
-    });
-  }
-
+  /** @Functon mute()
+    * Function to mute all the sounds & music.
+    */
   mute() {
     this.sounds.forEach(sound => {
       sound.muted = true;
@@ -81,6 +93,9 @@ export default class AudioController {
     this.theme.muted = true;
   }
 
+  /** @Functon unmute()
+    * Function to unmute all the sounds & music.
+    */
   unmute() {
     this.sounds.forEach(sound => {
       sound.muted = false;
@@ -88,6 +103,10 @@ export default class AudioController {
     this.theme.muted = false;
   }
 
+  /** @Functon trigger()
+    * Function to trigger a specific sound effect.
+    * @param {string} sound - the name of the sound that need to be played.
+    */
   trigger(sound) {
     switch (sound) {
       case 'shoot':

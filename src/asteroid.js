@@ -5,25 +5,29 @@
 export default class Asteroid {
   /** @constructor
     * Initializes all the properties of the asteroid
-    * @param floats x, y - position of te asteroid to be created
-    * @param float mass - mass of the asteroid, also the radius, mass to radius ratio 1:1
-    * @param float direction - direction in radians of the asteroid's speed, -1.0 if the asteroid is being created from scratch
+    * @param {floats} x, y - position of te asteroid to be created
+    * @param {float} mass - mass of the asteroid, also the radius, mass to radius ratio 1:1
+    * @param {float} direction - direction in radians of the asteroid's speed, -1.0 if the asteroid is being created from scratch
     */
   constructor(x, y, mass, direction) {
+    //Position variables
     this.x = x;
     this.y = y;
+    //Variable to help UFOs catch & release asteroids
     this.held = false;
-    this.destroyed = false;
     //if somehow this gets called with a mass less than 5
     if(mass < 5) {
       mass = 5;
     }
     this.mass = mass;
     this.radius = mass;
+    //Array to store the surface of the asteroid, so it isn't a perfect circle.
     this.surfacePath = [];
     this.createSurface();
+    //Used to determine the x & y velocities
     this.direction = direction;
     this.velocity = {x: 0.0, y: 0.0};
+    //Used to make the asteroid spin
     this.angle = 0.0;
     //direction is not -1 if the asteroid has exploded
     if(this.direction === -1.0) {
@@ -95,6 +99,7 @@ export default class Asteroid {
     * function to handle the asteroid leaving the edge of the screen
     */
   edgeDetection() {
+    //Asteroids have a buffer zone outside of the screen
     if(this.x >= 1000 + 2.5 * this.radius) {
       this.x = -2.4 * this.radius;
     }
@@ -113,20 +118,23 @@ export default class Asteroid {
     * handles the updating of asteroids speed and position
     */
   update() {
+    //Check if it needs to wrap around
     this.edgeDetection();
+    //Spin left or right depending on the x speed
     if(this.velocity.x > 0) {
       this.angle += 0.01;
     }
     else {
       this.angle -= 0.01;
     }
+    //Update the position
     this.x += this.velocity.x;
     this.y += this.velocity.y;
   }
 
   /** @function render()
     * function that handles drawing the asteroids
-    * @param context context - backBufferContext from game.js
+    * @param {canvas context} context - backBufferContext from game.js
     */
   render(context) {
     context.save();

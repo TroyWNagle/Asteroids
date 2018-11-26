@@ -47,6 +47,10 @@ Math.getDirection = function(x, y, x2, y2) {
   return direction;
 };
 
+/** @Function Math.getDirection
+  * Shorten version of the previous funcion, that takes an already calculated distance.
+  * So the distance computation isn't done multiple times for no reason.
+  */
 Math.getDir = function(dist, x, y , x2, y2) {
   //Get relative Distances
   let dx = x - x2;
@@ -62,6 +66,9 @@ Math.getDir = function(dist, x, y , x2, y2) {
   return direction;
 };
 
+/** @Function Math.getDistance()
+  * Handles getting the distance, as a float, between two points on the canvas.
+  */
 Math.getDistance = function(x, y, x2, y2) {
   //Get relative Distances
   let dx = x - x2;
@@ -96,8 +103,7 @@ Math.circleCollisionDetection = function(x1, y1, r1, x2, y2, r2) {
 }
 
 /** @function circleRectangleCollision
-* funciton to handle collisions between circles and rectangles, which are pretty much just buttons
-* Again kept as general as possible for maximum versatility
+* funciton to handle collisions between circles and rectangles,
 * @param {float} cx - x position of circle
 * @param {float} xy - y position of circle
 * @param {int/float} cr - radius of circle
@@ -107,7 +113,7 @@ Math.circleCollisionDetection = function(x1, y1, r1, x2, y2, r2) {
 * @param {int} rh - height of rectangle
 */
 Math.circleRectangleCollision = function(cx, cy, cr, rx, ry, rw, rh) {
-  //Find the center of the button
+  //Find the center of the rectangle
   let rec = {x: rx + rw / 2, y: ry + rh / 2}
   //Distances between centers
   let dx = Math.abs(cx - rec.x);
@@ -122,6 +128,6 @@ Math.circleRectangleCollision = function(cx, cy, cr, rx, ry, rw, rh) {
   if (dy <= (rh / 2)) { return true; }
 
   //Corner Check
-  let dist = Math.pow((dx - rw / 2) , 2) + Math.pow((dy - rh / 2), 2);
+  let dist = (dx - rw / 2) * (dx - rw / 2) + (dy - rh / 2) * (dy - rh / 2);
   return (dist <= (cr * cr));
 }

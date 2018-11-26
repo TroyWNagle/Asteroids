@@ -1,26 +1,34 @@
 import ParticlePool from './particlePool.js';
 
 /** @class Projectile
-  * Class to handle projectiles
+  * Class to handle projectiles, and is the super class for the Homing object from homing.js
   */
 export default class Projectile {
+  /** @Constructor
+    * Initializes the projectile object.
+    * @param {floats} x, y - position variables.
+    * @param {float} direction - direction the projectile travels, in radians.
+    * @pram {string} color - name of the color to be displayed.
+    */
   constructor(x, y, direction, color) {
     this.x = x;
     this.y = y;
     this.radius = 3.5;
     this.color = color;
+    //Make sure theh direction is position, just for simplicity
     if(direction < 0) {
       direction += Math.tau;
     }
     this.velocity = {mag: 5.0, dir: direction};
     this.speed = {x: 0.0, y: 0.0};
     this.initSpeed();
+    //Object pool for trail effect
     this.particlePool = new ParticlePool(50, this.color, 1.0);
   }
 
   /** @function createParticles()
     * function to handle creating the particles for trail of the projectile
-    * @param int numParticles - number of particles to be created
+    * @param {int} numParticles - number of particles to be created
     */
   createParticles(numParticles) {
     //Get the back of the projectile
@@ -55,6 +63,8 @@ export default class Projectile {
 
   /** @function update()
     * typical update function, also updates its particle trail
+    * @param {ship/ships} targets - could be theh player object or the array of UFO, depending on who owns this projectile.
+    * Targets is only for the subclass Homing.
     */
   update(targets) {
     this.createParticles(Math.randomInt(2, 4));
